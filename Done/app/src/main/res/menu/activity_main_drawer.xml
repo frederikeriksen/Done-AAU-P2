@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_my_to_do_lists"
+
+            android:title="My To-Do Lists"/>
+
+        <item
+            android:id="@+id/nav_incomplete_tasks"
+
+            android:title="Incomplete Tasks"/>
+        <item
+            android:id="@+id/nav_unverified_tasks"
+
+            android:title="Unverified Tasks"/>
+        <item
+            android:id="@+id/nav_completed_tasks"
+
+            android:title="Completed Tasks"/>
+    </group>
+
+    <item android:title="Settings">
+        <menu>
+            <item
+                android:id="@+id/nav_profile"
+
+                android:title="Profile"/>
+            <item
+                android:id="@+id/nav_notifications"
+
+                android:title="Notifications"/>
+            <item
+                android:id="@+id/nav_sign_out"
+
+                android:title="Sign Out"/>
+        </menu>
+    </item>
+
+</menu>

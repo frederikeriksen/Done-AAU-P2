@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="4dp"
+                android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/list_item_list_title_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize= "20sp"
+            android:textColor="@color/textColor"
+            android:layout_marginLeft="24dp"
+            tools:text="List Title"
+            android:layout_marginTop="14dp"
+            android:layout_marginRight="140dp"/>
+
+        <Button android:id="@+id/delete_list_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="?android:attr/buttonStyleSmall"
+                android:drawableRight="@drawable/ic_delete"
+                android:drawableEnd="@drawable/ic_delete"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"/>
+
+        <Button android:id="@+id/edit_list_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_toLeftOf="@id/delete_list_button"
+                android:drawableRight="@drawable/ic_edit"/>
+
+        <Button android:id="@+id/share_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_below="@id/delete_list_button"
+                android:drawableRight="@drawable/ic_share"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"/>
+
+        <Button android:id="@+id/task_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_below="@id/delete_list_button"
+                android:layout_toLeftOf="@id/share_button"/>
+
+        <TextView
+            android:id="@+id/list_item_task_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@id/task_button"
+            android:textSize= "15sp"
+            android:text="@string/task_label"
+            android:textColor="@color/textColor"
+            android:layout_marginLeft="26dp"
+            android:layout_marginTop="61dp"/>
+
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/mainBlueColor"/>
+
+</LinearLayout>
