@@ -1,6 +1,12 @@
 package com.bignerdranch.android.done;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.Image;
+import android.util.Base64;
+import android.widget.ImageView;
+
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.UUID;
@@ -19,7 +25,9 @@ public class Task {
     private Date mDueDate;
     private Date mReminderDate;
     private ArrayList<String> mNotes;
-    private ArrayList<Image> mPhotos;
+    private String mPhoto;
+    //idea is to save photo as a string here and in the getter and setter return it as bitmap;
+    //private ArrayList<Image> mPhotos;
     private boolean mCompleted;
     private boolean mVerified;
 
@@ -30,7 +38,8 @@ public class Task {
         mDueDate = new Date();
         mReminderDate = new Date();
         mNotes = new ArrayList<>();
-        mPhotos = new ArrayList<>();
+        mPhoto = "";
+        //mPhotos = new ArrayList<>();
         mCompleted = false;
         mVerified = false;
     }
@@ -126,7 +135,7 @@ public class Task {
         // to be implemented
     }
 
-    public ArrayList<Image> getPhotos() {
+    /*public ArrayList<Image> getPhotos() {
         return mPhotos;
     }
 
@@ -141,7 +150,7 @@ public class Task {
     public void removePhoto(Image mPhoto) {
         // to be implemented
     }
-
+    */
     public boolean isCompleted() {
         return mCompleted;
     }
@@ -156,5 +165,20 @@ public class Task {
 
     public void setVerified(boolean verified) {
         mVerified = verified;
+    }
+
+    public Bitmap getPhoto() {
+        byte[] imageAsBytes = Base64.decode(mPhoto.getBytes(), Base64.DEFAULT);
+        Bitmap photo = BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length);
+
+        return photo;
+    }
+
+    public void setPhoto(Bitmap photo) {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        photo.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+        byte[] byteArray = byteArrayOutputStream .toByteArray();
+        String encoded = Base64.encodeToString(byteArray, Base64.DEFAULT);
+        mPhoto = encoded;
     }
 }

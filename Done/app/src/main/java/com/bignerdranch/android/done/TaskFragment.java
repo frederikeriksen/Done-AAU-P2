@@ -2,7 +2,13 @@ package com.bignerdranch.android.done;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.media.Image;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.v4.app.Fragment;                 // from support library
 import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -17,8 +23,11 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
@@ -43,6 +52,12 @@ public class TaskFragment extends Fragment{
     private Button mAddNote;
     private TextView mNotesText;
     private Button mAddPhoto;
+    private ImageView mPhoto;
+    static final int REQUEST_IMAGE_CAPTURE = 1;
+    public static Bitmap mImageBitmap;
+    private String mCurrentPhotoPath;
+    private ImageView mImageView;
+    private static final int CAMERA_REQUEST = 1888;
     private CheckBox mCompletedCheckBox;
     private CheckBox mVerifiedCheckBox;
 
@@ -99,6 +114,19 @@ public class TaskFragment extends Fragment{
                 String note = (String) data.getSerializableExtra(NotesPickerFragment.EXTRA_TITLE);
                 mTask.addNote(note);
                 mNotesText.setText(mNotesText.getText() + "\n" + User.get().getUserName() + ": "+note);
+                break;
+            }
+            case CAMERA_REQUEST:{
+                try {
+                    mImageBitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), Uri.parse(mCurrentPhotoPath));
+                   // mImageView.setImageBitmap(mImageBitmap);
+                    mTask.setPhoto(mImageBitmap);
+                    ImageView imgShow = (ImageView) getView().findViewById(R.id.show_photo);
+                    imgShow.setImageBitmap(mTask.getPhoto());
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 break;
             }
 
@@ -244,9 +272,49 @@ public class TaskFragment extends Fragment{
             mAddPhoto = (Button) itemView.findViewById(R.id.add_photo);
         }
         public void bindTask() {
-            mAddPhoto.setText("None");
-            mAddPhoto.setEnabled(false);
+            mAddPhoto.setText("Add Photo");
+            mAddPhoto.setEnabled(true);
+            mAddPhoto.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    if (cameraIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+                        // Create the File where the photo should go
+                        File photoFile = null;
+                        try {
+                            photoFile = createImageFile();
+                        } catch (IOException ex) {
+                            // Error occurred while creating the File
+                            Log.i(TAG, "IOException");
+                        }
+                        // Continue only if the File was successfully created
+                        if (photoFile != null) {
+                            cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
+                            startActivityForResult(cameraIntent, CAMERA_REQUEST);
+                        }
+                    }
+
+                }
+            });
+
         }
+    }
+    //this is for the photo
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  // prefix
+                ".jpg",         // suffix
+                storageDir      // directory
+        );
+
+        // Save a file: path for use with ACTION_VIEW intents
+        mCurrentPhotoPath = "file:" + image.getAbsolutePath();
+        return image;
     }
 
     private class TaskHolder7 extends RecyclerView.ViewHolder {  // viewholder class holds reference to the entire view passed to super(view)

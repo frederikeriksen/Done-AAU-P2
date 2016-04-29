@@ -1,6 +1,9 @@
 package com.bignerdranch.android.done;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -13,6 +16,10 @@ import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
+
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.*;
 
 public class LoginActivity extends AppCompatActivity {
@@ -104,7 +111,10 @@ public class LoginActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "This password is too short", Toast.LENGTH_LONG).show();
                 } else if (passwordText.length() > 12) {
                     Toast.makeText(getApplicationContext(), "This password is too long", Toast.LENGTH_LONG).show();
-                } else {
+                } //else if (!User.isInternetWorking()) {
+                   // Toast.makeText(getApplicationContext(), "There is no internet connection", Toast.LENGTH_LONG).show();
+                //}
+                else {
                     boolean userExists = false;
                     for (int i = 0; i < userList.size(); i++) {
                         DataBaseUsers currUser = userList.get(i);
@@ -130,6 +140,8 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
+
+
 
     public final static boolean isValidEmail(CharSequence target) {
         return !TextUtils.isEmpty(target) && android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches();

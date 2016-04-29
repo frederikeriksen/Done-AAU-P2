@@ -4,6 +4,9 @@ import android.content.Context;
 import android.media.Image;
 import android.util.Log;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.UUID;
@@ -42,6 +45,8 @@ public class User {
         }
         return null;
     }
+
+
 
     public String getUserId() {
         return mUserId;

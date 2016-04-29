@@ -9,6 +9,10 @@ import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
+
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
@@ -29,7 +33,7 @@ public class FireBaseDataRetrieve extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Toast.makeText(this, "Service started", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "Service started", Toast.LENGTH_SHORT).show();
 
         curUser = User.get();
         Log.d(TAG, "User Name: " + User.get().getUserName());                // LOGS THE NAME OF THE USER
@@ -137,4 +141,20 @@ public class FireBaseDataRetrieve extends Service {
     public void onDestroy() {
         super.onDestroy();
     }
+    //don't touch that for now
+    /*public static boolean isInternetWorking() {
+        boolean success = false;
+        try {
+            URL url = new URL("https://google.com");
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setConnectTimeout(10000);
+            connection.connect();
+            success = connection.getResponseCode() == 200;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return success;
+    }*/
 }
+
