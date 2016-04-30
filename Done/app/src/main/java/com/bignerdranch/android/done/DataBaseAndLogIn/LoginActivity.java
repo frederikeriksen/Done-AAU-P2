@@ -2,6 +2,7 @@ package com.bignerdranch.android.done.DataBaseAndLogIn;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
@@ -19,7 +20,7 @@ import java.util.*;
 /**
  * Created by Ico on 19-Apr-16.
  */
-public class LoginActivity extends LogInParent {
+public class LoginActivity extends AppCompatActivity {
 
     Firebase mRef;
     EditText mEditTextEmail;

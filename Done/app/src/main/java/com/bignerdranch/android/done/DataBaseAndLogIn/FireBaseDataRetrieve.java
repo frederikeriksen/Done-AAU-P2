@@ -162,7 +162,7 @@ public class FireBaseDataRetrieve extends Service {
 
                 Log.d(TAG, "Deleted Task Name: " + title);                  // LOGS THE NAME OF THE DELETED TASK
 
-                boolean taskNotAlreadyDeleted = curUser.getList(listId).getTask(taskId) != null;
+                boolean taskNotAlreadyDeleted = curUser.getList(listId) != null;
 
                 Log.d(TAG, "Task is already deleted: " + !taskNotAlreadyDeleted);  // LOGS IF THE TASK IS ALREADY DELETED FROM LISTS-ARRAY
 

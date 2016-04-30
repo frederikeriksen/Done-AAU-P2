@@ -16,6 +16,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import com.bignerdranch.android.done.PopUps.DeleteTaskPickerFragment;
 import com.bignerdranch.android.done.R;
 import com.bignerdranch.android.done.UserData.Task;
@@ -187,10 +189,15 @@ public class ListTaskFragment extends Fragment{
             mDeleteButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    FragmentManager manager = getFragmentManager();
-                    DeleteTaskPickerFragment dialog = DeleteTaskPickerFragment.newInstance(mTask.getTaskId(), mList.getListId()); //deletes task
-                    dialog.setTargetFragment(ListTaskFragment.this, 9);
-                    dialog.show(manager, DIALOG_DELETE_TASK);
+                    if (User.get().getUserId().equals(mList.getCreatorId())) {
+                        FragmentManager manager = getFragmentManager();
+                        DeleteTaskPickerFragment dialog = DeleteTaskPickerFragment.newInstance(mTask.getTaskId(), mList.getListId()); //deletes task
+                        dialog.setTargetFragment(ListTaskFragment.this, 9);
+                        dialog.show(manager, DIALOG_DELETE_TASK);
+                    }
+                    else {
+                        Toast.makeText(getContext(), "The task can be deleted only by its creator", Toast.LENGTH_SHORT).show();
+                    }
                 }
             });
         }

@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;                     // from support libr
 import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.LinearLayoutManager;       // from support library
 import android.support.v7.widget.RecyclerView;              // from support library
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,6 +21,7 @@ import com.bignerdranch.android.done.PopUps.DeleteListPickerFragment;
 import com.bignerdranch.android.done.PopUps.EditListTitlePickerFragment;
 import com.bignerdranch.android.done.R;
 import com.bignerdranch.android.done.PopUps.ShareListPickerFragment;
+import com.bignerdranch.android.done.UserData.Task;
 import com.bignerdranch.android.done.UserData.User;
 import com.bignerdranch.android.done.PopUps.ListTitlePickerFragment;
 import com.bignerdranch.android.done.UserData.List;
@@ -43,6 +45,7 @@ public class UserListFragment extends Fragment {
     private List mNewList;
     private DataBaseLists listDBNew;
     private Firebase mDataBaseListRef = new Firebase("https://doneaau.firebaseio.com/lists/");
+    private Firebase mDataBaseTaskRef = new Firebase("https://doneaau.firebaseio.com/tasks/");
 
     @Override
     public void onCreate(Bundle savedInstanceState) {   // it is Public because it can be called by various activities hosting it
@@ -122,11 +125,15 @@ public class UserListFragment extends Fragment {
             case 7: {       // EDITING LIST
 
             }
-            case 8: {       // DELETING LIST
+            case 8: {       // DELETING LIST AND ITS TASKS
 
                 String listId = (String) data.getSerializableExtra(DeleteListPickerFragment.EXTRA_ID);
 
-                mDataBaseListRef.child(listId).setValue(null);      // deleting DB list
+                mDataBaseListRef.child(listId).setValue(null);      // deleting DB list and its tasks
+                for (Task t: User.get().getList(listId).getListTasks()) {
+                    Log.d(TAG, " "+ t.getTaskName());
+                    mDataBaseTaskRef.child(t.getTaskId()).setValue(null);
+                }
 
                 User.get().getUserLists().remove(User.get().getList(listId)); // deleting list from User-List Array
 
