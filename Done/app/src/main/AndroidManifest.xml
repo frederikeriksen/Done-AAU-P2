@@ -29,12 +29,12 @@
             android:name=".DataBaseAndLogIn.LoginActivity"
             android:label="LoginActivity"
             android:parentActivityName=".DataBaseAndLogIn.LoginActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme" />
         <activity
             android:name=".DataBaseAndLogIn.RegisterActivity"
             android:label="@string/title_activity_register"
             android:parentActivityName=".DataBaseAndLogIn.LoginActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme" />
         <activity
             android:name=".DataBaseAndLogIn.StartingPageActivity"
             android:theme="@style/AppTheme.NoActionBar">
