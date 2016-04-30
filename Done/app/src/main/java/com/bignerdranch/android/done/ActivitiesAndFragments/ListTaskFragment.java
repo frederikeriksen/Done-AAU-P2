@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;                 // from support library
 import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.LinearLayoutManager;   // from support library
 import android.support.v7.widget.RecyclerView;          // from support library
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -17,7 +18,6 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.bignerdranch.android.done.PopUps.DeleteTaskPickerFragment;
 import com.bignerdranch.android.done.R;
 import com.bignerdranch.android.done.UserData.Task;
@@ -42,6 +42,7 @@ public class ListTaskFragment extends Fragment{
     private static final String DIALOG_DELETE_TASK = "DialogDeleteTask";
     private static final String ARG_LIST_ID = "list_id";
     SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd, yyyy hh:mm a");
+    SimpleDateFormat format2 = new SimpleDateFormat("EEEE MMM dd, yyyy");
     private Firebase mDataBaseTaskRef = new Firebase("https://doneaau.firebaseio.com/tasks/");
     private List mList;
     private Task mNewTask;
@@ -80,7 +81,7 @@ public class ListTaskFragment extends Fragment{
     @Override
     public void onResume() {
         super.onResume();
-        //updateUI();
+        updateUI();
     }
 
     @Override
@@ -113,10 +114,10 @@ public class ListTaskFragment extends Fragment{
                 String title = (String) data.getSerializableExtra(TaskTitlePickerFragment.EXTRA_TITLE);
 
                 taskNew = new DataBaseTasks();                      // saving new task data to database
+                Date created = new Date();
                 taskNew.setTaskId(UUID.randomUUID().toString());
                 taskNew.setListId(mList.getListId());
                 taskNew.setTaskName(title);
-                Date created = new Date();
                 taskNew.setCreatedDate(format.format(created));
                 mDataBaseTaskRef.child(taskNew.getTaskId()).setValue(taskNew);
                 //Map<String, Object> taskId = new HashMap<String, Object>();
@@ -169,7 +170,7 @@ public class ListTaskFragment extends Fragment{
             super(itemView);
             mTitleTextView = (TextView) itemView.findViewById(R.id.list_item_task_title_text_view);
             mDateTextView = (TextView) itemView.findViewById(R.id.list_item_task_created_date_text_view);
-            mCompletedCheckBox = (CheckBox) itemView.findViewById(R.id.list_item_task_completed_check_box);
+            mCompletedCheckBox = (CheckBox) itemView.findViewById(R.id.task_completed_check_box);
             mEditButton = (Button) itemView.findViewById(R.id.edit_task_button);
             mDeleteButton = (Button) itemView.findViewById(R.id.delete_task_button);
         }
@@ -201,7 +202,6 @@ public class ListTaskFragment extends Fragment{
                 }
             });
         }
-
     }
 
     private class TaskAdapter extends RecyclerView.Adapter<TaskHolder> {  // adapter class

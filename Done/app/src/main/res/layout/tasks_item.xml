@@ -5,7 +5,7 @@
                 android:layout_height="wrap_content">
 
     <CheckBox
-        android:id="@+id/list_item_task_completed_check_box"
+        android:id="@+id/task_completed_check_box"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:buttonTint="@color/mainBlueColor"
@@ -17,7 +17,7 @@
         android:id="@+id/list_item_task_title_text_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/list_item_task_completed_check_box"
+        android:layout_toRightOf="@id/task_completed_check_box"
         android:padding="4dp"
         android:textSize= "20sp"
         android:textColor="@color/textColor"
@@ -29,7 +29,7 @@
         android:id="@+id/list_item_task_created_date_text_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/list_item_task_completed_check_box"
+        android:layout_toRightOf="@id/task_completed_check_box"
         android:padding="4dp"
         tools:text="Task Due Date"
         android:layout_marginTop="60dp"/>

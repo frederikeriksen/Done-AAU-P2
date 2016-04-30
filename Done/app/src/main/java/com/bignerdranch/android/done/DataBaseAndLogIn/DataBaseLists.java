@@ -6,34 +6,34 @@ package com.bignerdranch.android.done.DataBaseAndLogIn;
  */
 public class DataBaseLists {
 
-    private String mListId;
-    private String CreatorId;
-    private String mListName;
+    private String listId;
+    private String creatorId;
+    private String listName;
 
     public DataBaseLists () {
     }
 
     public String getListId() {
-        return mListId;
+        return listId;
     }
 
     public void setListId(String listId) {
-        mListId = listId;
+        this.listId = listId;
     }
 
     public String getCreatorId() {
-        return CreatorId;
+        return creatorId;
     }
 
     public void setCreatorId(String creatorId) {
-        CreatorId = creatorId;
+        this.creatorId = creatorId;
     }
 
     public String getListName() {
-        return mListName;
+        return listName;
     }
 
     public void setListName(String listName) {
-        mListName = listName;
+        this.listName = listName;
     }
 }

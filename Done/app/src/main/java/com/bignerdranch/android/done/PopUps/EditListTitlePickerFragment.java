@@ -78,5 +78,4 @@ public class EditListTitlePickerFragment extends android.support.v4.app.DialogFr
         getTargetFragment()
                 .onActivityResult(getTargetRequestCode(), resultCode, intent);
     }
-
 }

@@ -122,7 +122,7 @@ public class UserListFragment extends Fragment {
                 updateUI();                                         // and updating UI
                 break;
             }
-            case 7: {       // EDITING LIST
+            case 7: {       // SHARING LIST
 
             }
             case 8: {       // DELETING LIST AND ITS TASKS

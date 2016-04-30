@@ -11,8 +11,6 @@ import android.support.v4.app.Fragment;                 // from support library
 import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,16 +18,18 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import com.bignerdranch.android.done.PopUps.DueDatePickerFragment;
+import com.bignerdranch.android.done.PopUps.EditTaskTitlePickerFragment;
 import com.bignerdranch.android.done.PopUps.NotesPickerFragment;
 import com.bignerdranch.android.done.PopUps.ReminderDatePickerFragment;
 import com.bignerdranch.android.done.R;
+import com.bignerdranch.android.done.UserData.List;
 import com.bignerdranch.android.done.UserData.Task;
 import com.bignerdranch.android.done.UserData.User;
-
+import com.firebase.client.Firebase;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -46,8 +46,12 @@ public class TaskFragment extends Fragment{
     private static final String DIALOG_DATE1 = "DialogDate1"; // uniquely identifies the Fragment in the FM list
     private static final String DIALOG_DATE2 = "DialogDate2";
     private static final String DIALOG_NOTES = "DialogNotes";
+    private static final String DIALOG_EDIT_TASK_TITLE = "EditTaskTitle";
+    private Firebase mDataBaseTaskRef = new Firebase("https://doneaau.firebaseio.com/tasks/");
+    SimpleDateFormat format2 = new SimpleDateFormat("EEEE MMM dd, yyyy");
     private Task mTask;
-    private EditText mTitleField;
+    private List mList;
+    private Button mTaskTitle;
     private Button mAssignedTo;
     private Button mHiddenFrom;
     private Button mDueDateButton;
@@ -60,7 +64,6 @@ public class TaskFragment extends Fragment{
     public static Bitmap mImageBitmap;
     private String mCurrentPhotoPath;
     private ImageView mImageView;
-    private static final int CAMERA_REQUEST = 1888;
     private CheckBox mCompletedCheckBox;
     private CheckBox mVerifiedCheckBox;
     private FragmentManager manager = getFragmentManager();
@@ -81,6 +84,7 @@ public class TaskFragment extends Fragment{
         String taskId = (String) getArguments().getSerializable(ARG_TASK_ID);   // accessing Fragment arguments for task id
         String listId = (String) getArguments().getSerializable(ARG_LIST_ID);   //  RETRIEVES List ID from Intent
         mTask = User.get().getList(listId).getTask(taskId);    // using a get method to get Task from ids
+        mList = User.get().getList(listId);
     }
 
     private RecyclerView mTaskRecyclerView;         // RecyclerView creates only enough views to fill the screen and scrolls them
@@ -102,25 +106,35 @@ public class TaskFragment extends Fragment{
             return;
         }
         switch (requestCode) {
-            case 0: {
+            case 0: {      // ADDING DUE DATE
+
                 Date date = (Date) data.getSerializableExtra(DueDatePickerFragment.EXTRA_DATE);
+
+                mDataBaseTaskRef.child(mTask.getTaskId()).child("dueDate").setValue(format2.format(date));
+
                 mTask.setDueDate(date);
+
                 updateDueDate();
                 break;
             }
-            case 1: {
+            case 1: {      // ADDING REMINDER DATE
+
                 Date date = (Date) data.getSerializableExtra(ReminderDatePickerFragment.EXTRA_DATE);
+
+                mDataBaseTaskRef.child(mTask.getTaskId()).child("reminderDate").setValue(format2.format(date));
+
                 mTask.setReminderDate(date);
+
                 updateReminderDate();
                 break;
             }
-            case 2: {
+            case 2: {      // ADDING NOTES
                 String note = (String) data.getSerializableExtra(NotesPickerFragment.EXTRA_TITLE);
                 mTask.addNote(note);
                 mNotesText.setText(mNotesText.getText() + "\n" + User.get().getUserName() + ": "+note);
                 break;
             }
-            case CAMERA_REQUEST:{
+            case 3:{      // ADDING PHOTOS
                 try {
                     mImageBitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), Uri.parse(mCurrentPhotoPath));
                     // mImageView.setImageBitmap(mImageBitmap);
@@ -133,19 +147,30 @@ public class TaskFragment extends Fragment{
                 }
                 break;
             }
+            case 4: {      // ASSIGNING TASKS
 
+            }
+            case 5: {      // HIDING TASKS
 
+            }
+            case 12: {     // CHANGING TASK NAME
+
+                String taskTitle = (String) data.getSerializableExtra(EditTaskTitlePickerFragment.EXTRA_TASK_TITLE);
+
+                mDataBaseTaskRef.child(mTask.getTaskId()).child("taskName").setValue(taskTitle); // updating DB task name
+                                                                    // updating Array Task Name is already done
+                updateUI();                                         // and updating UI
+                break;
+            }
         }
     }
 
     private void updateDueDate() {
-        SimpleDateFormat format = new SimpleDateFormat("EEEE MMM dd, yyyy");
-        mDueDateButton.setText(format.format(mTask.getDueDate()));
+        mDueDateButton.setText(format2.format(mTask.getDueDate()));
     }
 
     private void updateReminderDate() {
-        SimpleDateFormat format = new SimpleDateFormat("EEEE MMM dd, yyyy");
-        mReminderDateButton.setText(format.format(mTask.getReminderDate()));
+        mReminderDateButton.setText(format2.format(mTask.getReminderDate()));
     }
 
     @Override
@@ -161,30 +186,34 @@ public class TaskFragment extends Fragment{
         else {mAdapter.notifyDataSetChanged();}
     }
 
-    private class TaskHolder0 extends RecyclerView.ViewHolder {  // viewholder class holds reference to the entire view passed to super(view)
-
+    private class TaskHolder0 extends RecyclerView.ViewHolder { // EDIT TASK TITLE
+                                                // viewholder class holds reference to the entire view passed
         public TaskHolder0(View itemView) {     // constructor - stashes the views
             super(itemView);
-            mTitleField = (EditText) itemView.findViewById(R.id.task_title);
+            mTaskTitle = (Button) itemView.findViewById(R.id.task_title);
         }
         public void bindTask() {
-            mTitleField.setText(mTask.getTaskName());
-            mTitleField.addTextChangedListener(new TextWatcher() {
-                public void onTextChanged(CharSequence c, int start, int before, int count) { // CharSequence is user input
-                    mTask.setTaskName(c.toString());
-                }
-                public void beforeTextChanged(CharSequence c, int start, int count, int after) {
-                    // This space intentionally left blank
-                }
-                public void afterTextChanged(Editable c) {
-                    // This one too
+            mTaskTitle.setText("Edit Task Name");
+            mTaskTitle.setEnabled(true);
+            mTaskTitle.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (User.get().getUserId().equals(mList.getCreatorId())) {
+                        FragmentManager manager = getFragmentManager();
+                        EditTaskTitlePickerFragment dialog = EditTaskTitlePickerFragment.newInstance(mTask.getTaskId(), mList.getListId()); //edits task title
+                        dialog.setTargetFragment(TaskFragment.this, 12);
+                        dialog.show(manager, DIALOG_EDIT_TASK_TITLE);
+                    }
+                    else {
+                        Toast.makeText(getContext(), "The list title can be edited only by its creator", Toast.LENGTH_SHORT).show();
+                    }
                 }
             });
         }
     }
 
-    private class TaskHolder1 extends RecyclerView.ViewHolder {  // viewholder class holds reference to the entire view passed to super(view)
-
+    private class TaskHolder1 extends RecyclerView.ViewHolder {  // ASSIGNING TASKS
+                                                // viewholder class holds reference to the entire view passed
         public TaskHolder1(View itemView) {     // constructor - stashes the views
             super(itemView);
             mAssignedTo = (Button) itemView.findViewById(R.id.assigned_to);
@@ -195,8 +224,8 @@ public class TaskFragment extends Fragment{
         }
     }
 
-    private class TaskHolder2 extends RecyclerView.ViewHolder {  // viewholder class holds reference to the entire view passed to super(view)
-
+    private class TaskHolder2 extends RecyclerView.ViewHolder {  // HIDING TASKS
+                                                // viewholder class holds reference to the entire view passed
         public TaskHolder2(View itemView) {     // constructor - stashes the views
             super(itemView);
             mHiddenFrom = (Button) itemView.findViewById(R.id.hidden_from);
@@ -207,8 +236,8 @@ public class TaskFragment extends Fragment{
         }
     }
 
-    private class TaskHolder3 extends RecyclerView.ViewHolder {  // viewholder class holds reference to the entire view passed to super(view)
-
+    private class TaskHolder3 extends RecyclerView.ViewHolder {  // ADDING DUE DATE
+                                                // viewholder class holds reference to the entire view passed
         public TaskHolder3(View itemView) {     // constructor - stashes the views
             super(itemView);
             mDueDateButton = (Button) itemView.findViewById(R.id.due_date);
@@ -218,6 +247,7 @@ public class TaskFragment extends Fragment{
             mDueDateButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    FragmentManager manager = getFragmentManager();
                     DueDatePickerFragment dialog = DueDatePickerFragment.newInstance(mTask.getDueDate()); //shows due date
                     dialog.setTargetFragment(TaskFragment.this, 0);
                     dialog.show(manager, DIALOG_DATE1);
@@ -226,8 +256,8 @@ public class TaskFragment extends Fragment{
         }
     }
 
-    private class TaskHolder4 extends RecyclerView.ViewHolder {  // viewholder class holds reference to the entire view passed to super(view)
-
+    private class TaskHolder4 extends RecyclerView.ViewHolder {  // ADDING REMINDER DATE
+                                                // viewholder class holds reference to the entire view passed
         public TaskHolder4(View itemView) {     // constructor - stashes the views
             super(itemView);
             mReminderDateButton = (Button) itemView.findViewById(R.id.reminder_date);
@@ -237,6 +267,7 @@ public class TaskFragment extends Fragment{
             mReminderDateButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    FragmentManager manager = getFragmentManager();
                     ReminderDatePickerFragment dialog = ReminderDatePickerFragment.newInstance(mTask.getReminderDate()); //shows reminder date
                     dialog.setTargetFragment(TaskFragment.this, 1);
                     dialog.show(manager, DIALOG_DATE2);
@@ -245,8 +276,8 @@ public class TaskFragment extends Fragment{
         }
     }
 
-    private class TaskHolder5 extends RecyclerView.ViewHolder {  // viewholder class holds reference to the entire view passed to super(view)
-
+    private class TaskHolder5 extends RecyclerView.ViewHolder {  // ADDING NOTES
+                                                // viewholder class holds reference to the entire view passed
         public TaskHolder5(View itemView) {     // constructor - stashes the views
             super(itemView);
             mAddNote = (Button) itemView.findViewById(R.id.add_note);
@@ -257,6 +288,7 @@ public class TaskFragment extends Fragment{
             mAddNote.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    FragmentManager manager = getFragmentManager();
                     NotesPickerFragment dialog = new NotesPickerFragment(); //shows reminder date
                     dialog.setTargetFragment(TaskFragment.this, 2);
                     dialog.show(manager, DIALOG_NOTES);
@@ -265,8 +297,8 @@ public class TaskFragment extends Fragment{
         }
     }
 
-    private class TaskHolder6 extends RecyclerView.ViewHolder {  // viewholder class holds reference to the entire view passed to super(view)
-
+    private class TaskHolder6 extends RecyclerView.ViewHolder {  // ADDING PHOTOS
+                                                // viewholder class holds reference to the entire view passed
         public TaskHolder6(View itemView) {     // constructor - stashes the views
             super(itemView);
             mAddPhoto = (Button) itemView.findViewById(R.id.add_photo);
@@ -290,10 +322,9 @@ public class TaskFragment extends Fragment{
                         // Continue only if the File was successfully created
                         if (photoFile != null) {
                             cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
-                            startActivityForResult(cameraIntent, CAMERA_REQUEST);
+                            startActivityForResult(cameraIntent, 3);
                         }
                     }
-
                 }
             });
 
@@ -317,8 +348,8 @@ public class TaskFragment extends Fragment{
         return image;
     }
 
-    private class TaskHolder7 extends RecyclerView.ViewHolder {  // viewholder class holds reference to the entire view passed to super(view)
-
+    private class TaskHolder7 extends RecyclerView.ViewHolder {  // MARK COMPLETED
+                                                // viewholder class holds reference to the entire view passed
         public TaskHolder7(View itemView) {     // constructor - stashes the views
             super(itemView);
             mCompletedCheckBox = (CheckBox) itemView.findViewById(R.id.task_completed);
@@ -327,14 +358,16 @@ public class TaskFragment extends Fragment{
             mCompletedCheckBox.setChecked(mTask.isCompleted());
             mCompletedCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    mTask.setCompleted(isChecked);
+                    mDataBaseTaskRef.child(mTask.getTaskId()).child("completed").setValue(isChecked);    // updates database
+                    mTask.setCompleted(isChecked);                              // updates Task Array
+                    Log.d(TAG, " Task completed: " + mTask.isCompleted());
                 }
             });
         }
     }
 
-    private class TaskHolder8 extends RecyclerView.ViewHolder {  // viewholder class holds reference to the entire view passed to super(view)
-
+    private class TaskHolder8 extends RecyclerView.ViewHolder {  // MARK VERIFIED
+                                                // viewholder class holds reference to the entire view passed
         public TaskHolder8(View itemView) {     // constructor - stashes the views
             super(itemView);
             mVerifiedCheckBox = (CheckBox) itemView.findViewById(R.id.task_verified);
@@ -343,7 +376,9 @@ public class TaskFragment extends Fragment{
             mVerifiedCheckBox.setChecked(mTask.isCompleted());
             mVerifiedCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    mTask.setCompleted(isChecked);
+                    mDataBaseTaskRef.child(mTask.getTaskId()).child("verified").setValue(isChecked);    // updates database
+                    mTask.setVerified(isChecked);                              // updates Task Array
+                    Log.d(TAG, " Task verified: " + mTask.isVerified());
                 }
             });
         }

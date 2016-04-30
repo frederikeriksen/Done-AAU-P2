@@ -22,6 +22,7 @@ public class FireBaseDataRetrieve extends Service {
 
     private static final String TAG = "DoneActivity";
     SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd, yyyy hh:mm a");
+    SimpleDateFormat format2 = new SimpleDateFormat("EEEE MMM dd, yyyy");
     User curUser;
 
     public FireBaseDataRetrieve() {
@@ -82,7 +83,6 @@ public class FireBaseDataRetrieve extends Service {
 
                     curUser.getList(listId).setListName(title);             // ADDS DATABASE LIST NAME TO USER LISTS-ARRAY LIST NAME
                 }
-
             }
 
             @Override
@@ -141,6 +141,18 @@ public class FireBaseDataRetrieve extends Service {
                             userTask.setCreatedDate(format.parse(task.getCreatedDate()));
                         } catch (ParseException e) {
                         }
+                        if (task.getDueDate() != null) {
+                            try {
+                                userTask.setDueDate(format2.parse(task.getDueDate()));
+                            } catch (ParseException e) {
+                            }
+                        }
+                        if (task.getReminderDate() != null) {
+                            try {
+                                userTask.setReminderDate(format2.parse(task.getReminderDate()));
+                            } catch (ParseException e) {
+                            }
+                        }
                         userTask.setCompleted(task.isCompleted());
                         userTask.setVerified(task.isVerified());
 
@@ -151,6 +163,71 @@ public class FireBaseDataRetrieve extends Service {
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                String listId = (String) dataSnapshot.child("listId").getValue();
+                String taskId = (String) dataSnapshot.child("taskId").getValue();
+                String title = (String) dataSnapshot.child("taskName").getValue();
+                String dueDate = (String) dataSnapshot.child("dueDate").getValue();
+                String reminderDate = (String) dataSnapshot.child("reminderDate").getValue();
+                String notes = (String) dataSnapshot.child("notes").getValue();
+                String photos = (String) dataSnapshot.child("photos").getValue();
+                Boolean completed = (Boolean) dataSnapshot.child("completed").getValue();
+                Boolean verified = (Boolean) dataSnapshot.child("verified").getValue();
+
+                Log.d(TAG, "Updated Task Name: " + title);                  // LOGS THE UPDATED DATA OF THE LIST
+                Log.d(TAG, "Updated Due Date: " + dueDate);
+                Log.d(TAG, "Updated Reminder Date: " + reminderDate);
+                Log.d(TAG, "Updated Notes: " + notes);
+                Log.d(TAG, "Updated Photos: " + photos);
+                Log.d(TAG, "Updated Completion: " + completed);
+                Log.d(TAG, "Updated Verification: " + verified);
+
+                boolean taskNameAlreadyUpdated = (curUser.getList(listId).getTask(taskId).getTaskName()).equals(title);
+                boolean dueDateAlreadyUpdated = (format2.format(curUser.getList(listId).getTask(taskId).getDueDate())).equals(dueDate);
+                boolean reminderDateAlreadyUpdated = (format2.format(curUser.getList(listId).getTask(taskId).getReminderDate())).equals(reminderDate);
+                //boolean notesAlreadyUpdated = (curUser.getList(listId).getTask(taskId).getNotes()).equals(notes);
+                //boolean photosAlreadyUpdated = (curUser.getList(listId).getTask(taskId).getPhoto()).equals(photos);
+                boolean completionAlreadyUpdated = (curUser.getList(listId).getTask(taskId).isCompleted()) == (completed);
+                boolean verificationAlreadyUpdated = (curUser.getList(listId).getTask(taskId).isVerified()) == (verified);
+
+                Log.d(TAG, "Task name already updated: " + taskNameAlreadyUpdated); // LOGS IF THE TASK DATA ARE ALREADY UPDATED IN TASKS-ARRAY
+                Log.d(TAG, "Due Date already updated: " + dueDateAlreadyUpdated);
+                Log.d(TAG, "Reminder Date already updated: " + reminderDateAlreadyUpdated);
+                //Log.d(TAG, "Notes already updated: " + notesAlreadyUpdated);
+                //Log.d(TAG, "Photos already updated: " + photosAlreadyUpdated);
+                Log.d(TAG, "Completion already updated: " + completionAlreadyUpdated);
+                Log.d(TAG, "Verification already updated: " + verificationAlreadyUpdated);
+
+                if (!taskNameAlreadyUpdated) {                              // LIST DATA ARE NOT YET UPDATED IN USER TASKS-ARRAY
+
+                    curUser.getList(listId).getTask(taskId).setTaskName(title);     // ADDS DATABASE TASK DATA TO USER TASKS-ARRAY
+                }
+                if (!dueDateAlreadyUpdated && dueDate != null) {
+
+                    try{curUser.getList(listId).getTask(taskId).setDueDate(format2.parse(dueDate));}
+                    catch(ParseException e){}
+                }
+                if (!reminderDateAlreadyUpdated && reminderDate != null) {
+
+                    try{curUser.getList(listId).getTask(taskId).setReminderDate(format2.parse(reminderDate));}
+                    catch(ParseException e){}
+                }
+/*                if (!notesAlreadyUpdated) {
+
+                    //curUser.getList(listId).getTask(taskId).setNotes(notes);      //need to set to the same format !!!
+                }
+                if (!photosAlreadyUpdated) {
+
+                    //curUser.getList(listId).getTask(taskId).setPhoto(photos);     //need to set to the same format !!!
+                } */
+                if (!completionAlreadyUpdated) {
+
+                    curUser.getList(listId).getTask(taskId).setCompleted(completed);
+                }
+                if (!verificationAlreadyUpdated) {
+
+                    curUser.getList(listId).getTask(taskId).setVerified(verified);
+                }
             }
 
             @Override

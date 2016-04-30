@@ -6,97 +6,97 @@ package com.bignerdranch.android.done.DataBaseAndLogIn;
  */
 public class DataBaseTasks {
 
-    private String mTaskId;
-    private String mListId;
-    private String mCreatedDate;
-    private String mTaskName;
-    private String mDueDate;
-    private String mReminderDate;
-    private String mNotes;
-    private String mPhotos;
-    private boolean mCompleted;
-    private boolean mVerified;
+    private String taskId;
+    private String listId;
+    private String createdDate;
+    private String taskName;
+    private String dueDate;
+    private String reminderDate;
+    private String notes;
+    private String photos;
+    private boolean completed;
+    private boolean verified;
 
     public DataBaseTasks () {
     }
 
     public String getTaskId() {
-        return mTaskId;
+        return taskId;
     }
 
     public void setTaskId(String taskId) {
-        mTaskId = taskId;
+        this.taskId = taskId;
     }
 
     public String getListId() {
-        return mListId;
+        return listId;
     }
 
     public void setListId(String listId) {
-        mListId = listId;
+        this.listId = listId;
     }
 
     public String getCreatedDate() {
-        return mCreatedDate;
+        return createdDate;
     }
 
     public void setCreatedDate(String createdDate) {
-        mCreatedDate = createdDate;
+        this.createdDate = createdDate;
     }
 
     public String getTaskName() {
-        return mTaskName;
+        return taskName;
     }
 
     public void setTaskName(String taskName) {
-        mTaskName = taskName;
+        this.taskName = taskName;
     }
 
     public String getDueDate() {
-        return mDueDate;
+        return dueDate;
     }
 
     public void setDueDate(String dueDate) {
-        mDueDate = dueDate;
+        this.dueDate = dueDate;
     }
 
     public String getReminderDate() {
-        return mReminderDate;
+        return reminderDate;
     }
 
     public void setReminderDate(String reminderDate) {
-        mReminderDate = reminderDate;
+        this.reminderDate = reminderDate;
     }
 
     public String getNotes() {
-        return mNotes;
+        return notes;
     }
 
     public void setNotes(String notes) {
-        mNotes = notes;
+        this.notes = notes;
     }
 
     public String getPhotos() {
-        return mPhotos;
+        return photos;
     }
 
     public void setPhotos(String photos) {
-        mPhotos = photos;
+        this.photos = photos;
     }
 
     public boolean isCompleted() {
-        return mCompleted;
+        return completed;
     }
 
     public void setCompleted(boolean completed) {
-        mCompleted = completed;
+        this.completed = completed;
     }
 
     public boolean isVerified() {
-        return mVerified;
+        return verified;
     }
 
     public void setVerified(boolean verified) {
-        mVerified = verified;
+        this.verified = verified;
     }
 }
