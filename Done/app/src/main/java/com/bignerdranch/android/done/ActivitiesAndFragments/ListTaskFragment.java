@@ -1,4 +1,4 @@
-package com.bignerdranch.android.done;
+package com.bignerdranch.android.done.ActivitiesAndFragments;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -7,7 +7,6 @@ import android.support.v4.app.Fragment;                 // from support library
 import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.LinearLayoutManager;   // from support library
 import android.support.v7.widget.RecyclerView;          // from support library
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -17,15 +16,18 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
-
+import com.bignerdranch.android.done.PopUps.DeleteTaskPickerFragment;
+import com.bignerdranch.android.done.R;
+import com.bignerdranch.android.done.UserData.Task;
+import com.bignerdranch.android.done.PopUps.TaskTitlePickerFragment;
+import com.bignerdranch.android.done.UserData.List;
+import com.bignerdranch.android.done.DataBaseAndLogIn.DataBaseTasks;
+import com.bignerdranch.android.done.UserData.User;
 import com.firebase.client.Firebase;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -35,10 +37,13 @@ public class ListTaskFragment extends Fragment{
 
     private static final String TAG = "DoneActivity";
     private static final String DIALOG_TASK_TITLE = "DialogTaskTitle";
+    private static final String DIALOG_DELETE_TASK = "DialogDeleteTask";
     private static final String ARG_LIST_ID = "list_id";
     SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd, yyyy hh:mm a");
+    private Firebase mDataBaseTaskRef = new Firebase("https://doneaau.firebaseio.com/tasks/");
     private List mList;
     private Task mNewTask;
+    private Task mTask;
     private DataBaseTasks taskNew;
 
     public static ListTaskFragment newInstance(String listId) {   // we use a method to create Fragment instead of using Constructor
@@ -86,8 +91,8 @@ public class ListTaskFragment extends Fragment{
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_item_new_task:
-                FragmentManager manager = getFragmentManager();
                 TaskTitlePickerFragment dialog = new TaskTitlePickerFragment(); //shows dialog for new task
+                FragmentManager manager = getFragmentManager();
                 dialog.setTargetFragment(ListTaskFragment.this, 11);
                 dialog.show(manager, DIALOG_TASK_TITLE);
                 return true;
@@ -100,29 +105,44 @@ public class ListTaskFragment extends Fragment{
         if (resultCode != Activity.RESULT_OK) {
             return;
         }
-        if (requestCode == 11) {
-            String title = (String) data.getSerializableExtra(TaskTitlePickerFragment.EXTRA_TITLE);
+        switch (requestCode) {
+            case 11: {      // ADDING NEW TASK
 
-            taskNew = new DataBaseTasks();                      // saving new task data to database
-            taskNew.setTaskId(UUID.randomUUID().toString());
-            taskNew.setListId(mList.getListId());
-            taskNew.setTaskName(title);
-            Date created = new Date();
-            taskNew.setCreatedDate(format.format(created));
-            new Firebase("https://doneaau.firebaseio.com/tasks/").child(taskNew.getTaskId()).setValue(taskNew);
-            //Map<String, Object> taskId = new HashMap<String, Object>();
-            //taskId.put(taskNew.getTaskId(), true);
-            //new Firebase("https://doneaau.firebaseio.com/lists/"+taskNew.getListId()+"/tasks/").updateChildren(taskId);
+                String title = (String) data.getSerializableExtra(TaskTitlePickerFragment.EXTRA_TITLE);
 
-            mNewTask = new Task(mList.getListId());             // adding new Task to Array
-            mNewTask.setTaskId(taskNew.getTaskId());
-            mNewTask.setListId(taskNew.getListId());
-            mNewTask.setTaskName(title);
-            try {mNewTask.setCreatedDate(format.parse(taskNew.getCreatedDate()));}
-            catch(ParseException e){}
-            mList.addListTask(mNewTask);
+                taskNew = new DataBaseTasks();                      // saving new task data to database
+                taskNew.setTaskId(UUID.randomUUID().toString());
+                taskNew.setListId(mList.getListId());
+                taskNew.setTaskName(title);
+                Date created = new Date();
+                taskNew.setCreatedDate(format.format(created));
+                mDataBaseTaskRef.child(taskNew.getTaskId()).setValue(taskNew);
+                //Map<String, Object> taskId = new HashMap<String, Object>();
+                //taskId.put(taskNew.getTaskId(), true);
+                //new Firebase("https://doneaau.firebaseio.com/lists/"+taskNew.getListId()+"/tasks/").updateChildren(taskId);
 
-            updateUI();                                         // and updating UI
+                mNewTask = new Task(mList.getListId());             // adding new Task to Array
+                mNewTask.setTaskId(taskNew.getTaskId());
+                mNewTask.setListId(taskNew.getListId());
+                mNewTask.setTaskName(title);
+                try {mNewTask.setCreatedDate(format.parse(taskNew.getCreatedDate()));}
+                catch(ParseException e){}
+                mList.addListTask(mNewTask);
+
+                updateUI();                                         // and updating UI
+                break;
+            }
+            case 9: {       // DELETING TASK
+
+                String taskId = (String) data.getSerializableExtra(DeleteTaskPickerFragment.EXTRA_ID);
+
+                mDataBaseTaskRef.child(taskId).setValue(null);      // deleting DB list
+
+                mList.getListTasks().remove(mList.getTask(taskId)); // deleting task from User-List Array
+
+                updateUI();                                         // and updating UI
+                break;
+            }
         }
     }
 
@@ -141,7 +161,7 @@ public class ListTaskFragment extends Fragment{
         private CheckBox mCompletedCheckBox;
         private Button mEditButton;
         private Button mDeleteButton;
-        private Task mTask;
+        private FragmentManager manager = getFragmentManager();
 
         public TaskHolder(View itemView) {     // constructor - stashes the views
             super(itemView);
@@ -162,6 +182,15 @@ public class ListTaskFragment extends Fragment{
                 public void onClick(View v) {
                     Intent intent = TaskActivity.newIntent(getActivity(), mTask.getTaskId(), mList.getListId());
                     startActivity(intent);                      // passes taskId, listID
+                }
+            });
+            mDeleteButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    FragmentManager manager = getFragmentManager();
+                    DeleteTaskPickerFragment dialog = DeleteTaskPickerFragment.newInstance(mTask.getTaskId(), mList.getListId()); //deletes task
+                    dialog.setTargetFragment(ListTaskFragment.this, 9);
+                    dialog.show(manager, DIALOG_DELETE_TASK);
                 }
             });
         }

@@ -1,22 +1,23 @@
-package com.bignerdranch.android.done;
+package com.bignerdranch.android.done.DataBaseAndLogIn;
 
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
+import com.bignerdranch.android.done.UserData.List;
+import com.bignerdranch.android.done.UserData.Task;
+import com.bignerdranch.android.done.UserData.User;
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
-
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
-
+/**
+ * Created by Ico on 19-Apr-16.
+ */
 public class FireBaseDataRetrieve extends Service {
 
     private static final String TAG = "DoneActivity";
@@ -33,16 +34,17 @@ public class FireBaseDataRetrieve extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        //Toast.makeText(this, "Service started", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Service started", Toast.LENGTH_SHORT).show();
 
         curUser = User.get();
         Log.d(TAG, "User Name: " + User.get().getUserName());                // LOGS THE NAME OF THE USER
 
         Firebase mRefLists = new Firebase("https://doneaau.firebaseio.com/lists/");
-        mRefLists.addChildEventListener(new ChildEventListener() {
-            // Retrieve new lists as they are added to the database
+
+        mRefLists.addChildEventListener(new ChildEventListener() {          // Retrieves user-list data as they appear in the database
+
             @Override
-            public void onChildAdded(DataSnapshot snapshot, String previousChildKey) {
+            public void onChildAdded(DataSnapshot snapshot, String previousChildKey) { // Retrieves new/old lists for the user
 
                 DataBaseLists list = snapshot.getValue(DataBaseLists.class);
 
@@ -65,11 +67,40 @@ public class FireBaseDataRetrieve extends Service {
             }
 
             @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) { // Retrieves updated list data for the user
+
+                String listId = (String) dataSnapshot.child("listId").getValue();
+                String title = (String) dataSnapshot.child("listName").getValue();
+
+                Log.d(TAG, "Updated List Name: " + title);                  // LOGS THE UPDATED NAME OF THE LIST
+
+                boolean listNameAlreadyUpdated = (curUser.getList(listId).getListName()).equals(title);
+
+                Log.d(TAG, "List name already updated: " + listNameAlreadyUpdated);  // LOGS IF THE LIST NAME IS ALREADY UPDATED IN LISTS-ARRAY
+
+                if (!listNameAlreadyUpdated) {                              // LIST NAME IS NOT YET UPDATED IN USER LISTS-ARRAY
+
+                    curUser.getList(listId).setListName(title);             // ADDS DATABASE LIST NAME TO USER LISTS-ARRAY LIST NAME
+                }
+
             }
 
             @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
+            public void onChildRemoved(DataSnapshot dataSnapshot) {         // Retrieves deleted lists for the user
+
+                String listId = (String) dataSnapshot.child("listId").getValue();
+                String title = (String) dataSnapshot.child("listName").getValue();
+
+                Log.d(TAG, "Deleted List Name: " + title);                  // LOGS THE NAME OF THE DELETED LIST
+
+                boolean listNotAlreadyDeleted = curUser.getList(listId) != null;
+
+                Log.d(TAG, "List is already deleted: " + !listNotAlreadyDeleted);  // LOGS IF THE LIST IS ALREADY DELETED FROM LISTS-ARRAY
+
+                if (listNotAlreadyDeleted) {                                // LIST NAME IS NOT YET UPDATED IN USER LISTS-ARRAY
+
+                    curUser.removeUserList(curUser.getList(listId));        // DELETES DATABASE LIST FROM USER LISTS-ARRAY
+                }
             }
 
             @Override
@@ -83,8 +114,9 @@ public class FireBaseDataRetrieve extends Service {
         });
 
         Firebase mRefTasks = new Firebase("https://doneaau.firebaseio.com/tasks/");
-        mRefTasks.addChildEventListener(new ChildEventListener() {
-            // Retrieve new tasks as they are added to the database
+
+        mRefTasks.addChildEventListener(new ChildEventListener() {          // Retrieves task data as they appear in the database
+
             @Override
             public void onChildAdded(DataSnapshot snapshot, String previousChildKey) {
 
@@ -123,6 +155,21 @@ public class FireBaseDataRetrieve extends Service {
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                String taskId = (String) dataSnapshot.child("taskId").getValue();
+                String listId = (String) dataSnapshot.child("listId").getValue();
+                String title = (String) dataSnapshot.child("taskName").getValue();
+
+                Log.d(TAG, "Deleted Task Name: " + title);                  // LOGS THE NAME OF THE DELETED TASK
+
+                boolean taskNotAlreadyDeleted = curUser.getList(listId).getTask(taskId) != null;
+
+                Log.d(TAG, "Task is already deleted: " + !taskNotAlreadyDeleted);  // LOGS IF THE TASK IS ALREADY DELETED FROM LISTS-ARRAY
+
+                if (taskNotAlreadyDeleted) {                                // LIST NAME IS NOT YET UPDATED IN USER LISTS-ARRAY
+
+                    curUser.getList(listId).removeListTask(curUser.getList(listId).getTask(taskId)); // DELETES DATABASE TASK FROM USER LISTS-ARRAY
+                }
             }
 
             @Override
@@ -141,20 +188,4 @@ public class FireBaseDataRetrieve extends Service {
     public void onDestroy() {
         super.onDestroy();
     }
-    //don't touch that for now
-    /*public static boolean isInternetWorking() {
-        boolean success = false;
-        try {
-            URL url = new URL("https://google.com");
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
-            connection.setConnectTimeout(10000);
-            connection.connect();
-            success = connection.getResponseCode() == 200;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return success;
-    }*/
 }
-

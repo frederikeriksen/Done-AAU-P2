@@ -1,4 +1,4 @@
-package com.bignerdranch.android.done;
+package com.bignerdranch.android.done.PopUps;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -10,7 +10,7 @@ import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.DatePicker;
-
+import com.bignerdranch.android.done.R;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;

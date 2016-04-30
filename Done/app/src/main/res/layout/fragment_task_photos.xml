@@ -25,8 +25,7 @@
         android:adjustViewBounds="true"
         android:maxHeight="80dp"
         android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="10dp"
-        />
+        android:layout_marginBottom="10dp"/>
 
     <View
         android:layout_width="match_parent"

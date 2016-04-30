@@ -1,36 +1,8 @@
-/*package com.bignerdranch.android.done;
+package com.bignerdranch.android.done.DataBaseAndLogIn;
 
-import android.content.Context;
-import android.media.Image;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.UUID;
-
-
-public class UserTest {
-    private int birthYear;
-    private String fullName;
-
-    public UserTest() {}
-
-    public UserTest(String fullName, int birthYear) {
-        this.fullName = fullName;
-        this.birthYear = birthYear;
-    }
-
-    public long getBirthYear() {
-        return birthYear;
-    }
-
-    public String getFullName() {
-        return fullName;
-    }
-}*/
-
-package com.bignerdranch.android.done;
-
-
+/**
+ * Created by Ico on 19-Apr-16.
+ */
 public class DataBaseUsers {
 
     //IMPORTANT!!! the name of the fields should be the same as the one in the database!

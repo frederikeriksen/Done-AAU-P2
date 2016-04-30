@@ -1,10 +1,8 @@
-package com.bignerdranch.android.done;
+package com.bignerdranch.android.done.ActivitiesAndFragments;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -25,12 +23,17 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import com.bignerdranch.android.done.PopUps.DueDatePickerFragment;
+import com.bignerdranch.android.done.PopUps.NotesPickerFragment;
+import com.bignerdranch.android.done.PopUps.ReminderDatePickerFragment;
+import com.bignerdranch.android.done.R;
+import com.bignerdranch.android.done.UserData.Task;
+import com.bignerdranch.android.done.UserData.User;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.UUID;
 
 /**
  * Created by michalisgratsias on 03/04/16.
@@ -60,6 +63,7 @@ public class TaskFragment extends Fragment{
     private static final int CAMERA_REQUEST = 1888;
     private CheckBox mCompletedCheckBox;
     private CheckBox mVerifiedCheckBox;
+    private FragmentManager manager = getFragmentManager();
 
     // Fragment-Arguments work just like Intent-Extras for an Activity
     public static TaskFragment newInstance(String taskId, String listId) {   // we use a method to create Fragment instead of using Constructor
@@ -119,7 +123,7 @@ public class TaskFragment extends Fragment{
             case CAMERA_REQUEST:{
                 try {
                     mImageBitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), Uri.parse(mCurrentPhotoPath));
-                   // mImageView.setImageBitmap(mImageBitmap);
+                    // mImageView.setImageBitmap(mImageBitmap);
                     mTask.setPhoto(mImageBitmap);
                     ImageView imgShow = (ImageView) getView().findViewById(R.id.show_photo);
                     imgShow.setImageBitmap(mTask.getPhoto());
@@ -129,7 +133,6 @@ public class TaskFragment extends Fragment{
                 }
                 break;
             }
-
 
 
         }
@@ -215,7 +218,6 @@ public class TaskFragment extends Fragment{
             mDueDateButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    FragmentManager manager = getFragmentManager();
                     DueDatePickerFragment dialog = DueDatePickerFragment.newInstance(mTask.getDueDate()); //shows due date
                     dialog.setTargetFragment(TaskFragment.this, 0);
                     dialog.show(manager, DIALOG_DATE1);
@@ -235,7 +237,6 @@ public class TaskFragment extends Fragment{
             mReminderDateButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    FragmentManager manager = getFragmentManager();
                     ReminderDatePickerFragment dialog = ReminderDatePickerFragment.newInstance(mTask.getReminderDate()); //shows reminder date
                     dialog.setTargetFragment(TaskFragment.this, 1);
                     dialog.show(manager, DIALOG_DATE2);
@@ -256,7 +257,6 @@ public class TaskFragment extends Fragment{
             mAddNote.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    FragmentManager manager = getFragmentManager();
                     NotesPickerFragment dialog = new NotesPickerFragment(); //shows reminder date
                     dialog.setTargetFragment(TaskFragment.this, 2);
                     dialog.show(manager, DIALOG_NOTES);

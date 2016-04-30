@@ -1,4 +1,4 @@
-package com.bignerdranch.android.done;
+package com.bignerdranch.android.done.PopUps;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -12,8 +12,7 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
-
-import java.util.ArrayList;
+import com.bignerdranch.android.done.R;
 
 /**
  * Created by michalisgratsias on 17/04/16.

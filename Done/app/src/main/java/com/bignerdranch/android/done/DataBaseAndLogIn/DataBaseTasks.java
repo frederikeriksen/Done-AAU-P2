@@ -1,4 +1,4 @@
-package com.bignerdranch.android.done;
+package com.bignerdranch.android.done.DataBaseAndLogIn;
 
 
 /**
@@ -17,7 +17,7 @@ public class DataBaseTasks {
     private boolean mCompleted;
     private boolean mVerified;
 
-    DataBaseTasks () {
+    public DataBaseTasks () {
     }
 
     public String getTaskId() {

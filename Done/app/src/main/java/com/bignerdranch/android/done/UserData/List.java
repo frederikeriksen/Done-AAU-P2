@@ -1,9 +1,6 @@
-package com.bignerdranch.android.done;
-
-import android.content.Context;
+package com.bignerdranch.android.done.UserData;
 
 import java.util.ArrayList;
-import java.util.UUID;
 
 /**
  * Created by michalisgratsias on 27/03/16.

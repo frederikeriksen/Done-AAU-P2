@@ -1,4 +1,4 @@
-package com.bignerdranch.android.done;
+package com.bignerdranch.android.done.DataBaseAndLogIn;
 
 
 /**
@@ -10,7 +10,7 @@ public class DataBaseLists {
     private String CreatorId;
     private String mListName;
 
-    DataBaseLists () {
+    public DataBaseLists () {
     }
 
     public String getListId() {

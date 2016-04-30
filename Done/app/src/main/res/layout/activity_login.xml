@@ -7,7 +7,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="10dp"
-    tools:context="com.bignerdranch.android.done.LoginActivity">
+    tools:context=".DataBaseAndLogIn.LoginActivity">
 
     <ImageView
         android:id="@+id/logo"
@@ -45,6 +45,5 @@
         android:id="@+id/buttonLogin"
         android:layout_below="@+id/editTextLoginPassword"
         android:layout_centerHorizontal="true" />
-
 
 </RelativeLayout>

@@ -1,15 +1,6 @@
-package com.bignerdranch.android.done;
+package com.bignerdranch.android.done.UserData;
 
-import android.content.Context;
-import android.media.Image;
-import android.util.Log;
-
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.UUID;
 
 /**
  * Created by michalisgratsias on 27/03/16.
@@ -36,17 +27,15 @@ public class User {
 
     public ArrayList<List> getUserLists() {                         // get all User Lists
         return mUserLists;
-    }
+    }        // get all User-Lists
 
-    public List getList(String id) {                                  // get a User-List by ID
+    public List getList(String id) {                                    // get a User-List by ID
         for (List l : mUserLists) {
             if (l.getListId().equals(id))
                 return l;
         }
         return null;
     }
-
-
 
     public String getUserId() {
         return mUserId;

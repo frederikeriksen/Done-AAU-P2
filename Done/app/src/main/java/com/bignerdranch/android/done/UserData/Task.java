@@ -1,15 +1,11 @@
-package com.bignerdranch.android.done;
+package com.bignerdranch.android.done.UserData;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.Image;
 import android.util.Base64;
-import android.widget.ImageView;
-
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.UUID;
 
 /**
  * Created by michalisgratsias on 27/03/16.
@@ -38,7 +34,6 @@ public class Task {
         mDueDate = new Date();
         mReminderDate = new Date();
         mNotes = new ArrayList<>();
-        mPhoto = "";
         //mPhotos = new ArrayList<>();
         mCompleted = false;
         mVerified = false;
@@ -135,22 +130,21 @@ public class Task {
         // to be implemented
     }
 
-    /*public ArrayList<Image> getPhotos() {
-        return mPhotos;
+    public Bitmap getPhoto() {
+        byte[] imageAsBytes = Base64.decode(mPhoto.getBytes(), Base64.DEFAULT);
+        Bitmap photo = BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length);
+
+        return photo;
     }
 
-    public void setPhotos(ArrayList<Image> photos) {
-        mPhotos = photos;
+    public void setPhoto(Bitmap photo) {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        photo.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+        byte[] byteArray = byteArrayOutputStream .toByteArray();
+        String encoded = Base64.encodeToString(byteArray, Base64.DEFAULT);
+        mPhoto = encoded;
     }
 
-    public void addPhoto(Image mPhoto) {
-        // to be implemented
-    }
-
-    public void removePhoto(Image mPhoto) {
-        // to be implemented
-    }
-    */
     public boolean isCompleted() {
         return mCompleted;
     }
@@ -165,20 +159,5 @@ public class Task {
 
     public void setVerified(boolean verified) {
         mVerified = verified;
-    }
-
-    public Bitmap getPhoto() {
-        byte[] imageAsBytes = Base64.decode(mPhoto.getBytes(), Base64.DEFAULT);
-        Bitmap photo = BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length);
-
-        return photo;
-    }
-
-    public void setPhoto(Bitmap photo) {
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        photo.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
-        byte[] byteArray = byteArrayOutputStream .toByteArray();
-        String encoded = Base64.encodeToString(byteArray, Base64.DEFAULT);
-        mPhoto = encoded;
     }
 }

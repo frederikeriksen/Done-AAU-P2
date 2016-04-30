@@ -1,19 +1,22 @@
-package com.bignerdranch.android.done;
+package com.bignerdranch.android.done.DataBaseAndLogIn;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
+import com.bignerdranch.android.done.R;
+import com.bignerdranch.android.done.UserData.User;
+import com.bignerdranch.android.done.ActivitiesAndFragments.UserActivity;
 import com.firebase.client.Firebase;
-
 import java.util.UUID;
 
-public class RegisterActivity extends AppCompatActivity {
+/**
+ * Created by Ico on 19-Apr-16.
+ */
+public class RegisterActivity extends RegistrationParent {
 
     private Firebase mRef;
     private EditText mEditTextName;
@@ -23,15 +26,16 @@ public class RegisterActivity extends AppCompatActivity {
     private Button mButtonRegister;
     private String fireBaseUrl;
     private DataBaseUsers userNew;
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
         getSupportActionBar().setTitle("Register");
     }
 
     @Override
-    protected void onStart() {
+    public void onStart() {
         super.onStart();
 
         mButtonRegister = (Button) findViewById(R.id.buttonRegister);
@@ -42,29 +46,11 @@ public class RegisterActivity extends AppCompatActivity {
         fireBaseUrl = "https://doneaau.firebaseio.com/users/";
         mRef = new Firebase(fireBaseUrl);
 
-
-        /*mRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                //String text = dataSnapshot.getValue(String.class);
-                // mTextFieldCondition.setText(text);
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-
-            }
-        });
-        */
-        //final DataBaseUsers test = new DataBaseUsers("Just Test", 1995);
-
-        //final DataBaseUsers testTwo = new DataBaseUsers(); //test user
         mButtonRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //there shouldn't be any strange symbols here in order to work
-                //mRef.child(testTwo.getUserName()).setValue(testTwo);
-                //userNew = new User(mEditTextName.getText(), mEditTextPassword.getText(), mEditTextEmail.getText());
+
                 String email = mEditTextEmail.getText().toString();
                 String name = mEditTextName.getText().toString();
                 String password = mEditTextPassword.getText().toString();

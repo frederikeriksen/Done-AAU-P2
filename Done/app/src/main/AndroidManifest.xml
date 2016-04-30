@@ -4,13 +4,8 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
 
-    <uses-feature android:name="android.hardware.camera" />
-
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
     <application
-        android:name=".Done"
+        android:name=".DataBaseAndLogIn.Done"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="Done"
@@ -18,29 +13,30 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".UserActivity"
+            android:name=".ActivitiesAndFragments.UserActivity"
             android:label="Done"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".ListActivity"
+            android:name=".ActivitiesAndFragments.ListActivity"
             android:label="Done"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".TaskActivity"
+            android:name=".ActivitiesAndFragments.TaskActivity"
             android:label="Done"
-            android:parentActivityName=".UserActivity"
+            android:parentActivityName=".ActivitiesAndFragments.UserActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".LoginActivity"
+            android:name=".DataBaseAndLogIn.LoginActivity"
             android:label="LoginActivity"
-            android:parentActivityName=".LoginActivity"
-            android:theme="@style/AppTheme" />
+            android:parentActivityName=".DataBaseAndLogIn.LoginActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".RegisterActivity"
+            android:name=".DataBaseAndLogIn.RegisterActivity"
             android:label="@string/title_activity_register"
-            android:parentActivityName=".LoginActivity" />
+            android:parentActivityName=".DataBaseAndLogIn.LoginActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".StartingPageActivity"
+            android:name=".DataBaseAndLogIn.StartingPageActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -50,10 +46,9 @@
         </activity>
 
         <service
-            android:name=".FireBaseDataRetrieve"
+            android:name=".DataBaseAndLogIn.FireBaseDataRetrieve"
             android:enabled="true"
-            android:exported="true" />
-
+            android:exported="true"/>
     </application>
 
 </manifest>

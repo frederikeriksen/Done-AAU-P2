@@ -1,28 +1,25 @@
-package com.bignerdranch.android.done;
+package com.bignerdranch.android.done.DataBaseAndLogIn;
 
-import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+import com.bignerdranch.android.done.R;
+import com.bignerdranch.android.done.UserData.User;
+import com.bignerdranch.android.done.ActivitiesAndFragments.UserActivity;
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
-
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.*;
 
-public class LoginActivity extends AppCompatActivity {
+/**
+ * Created by Ico on 19-Apr-16.
+ */
+public class LoginActivity extends LogInParent {
 
     Firebase mRef;
     EditText mEditTextEmail;
@@ -38,14 +35,12 @@ public class LoginActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("Login");
     }
 
-
     @Override
-    protected void onStart() {
+    public void onStart() {
         super.onStart();
         mEditTextEmail = (EditText) findViewById(R.id.editTextLoginEmail);
         mEditTextPassword = (EditText) findViewById(R.id.editTextLoginPassword);
         mButtonLogin = (Button) findViewById(R.id.buttonLogin);
-
 
         mRef = new Firebase("https://doneaau.firebaseio.com/users/");
         mRef.addChildEventListener(new ChildEventListener() {
@@ -56,47 +51,19 @@ public class LoginActivity extends AppCompatActivity {
                 //System.out.println(user.getEmail());
                 userList.add(user);
             }
-
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
             }
-
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
-
             }
-
             @Override
             public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
             }
-
             @Override
             public void onCancelled(FirebaseError firebaseError) {
-
             }
         });
-
-        /*
-        mRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot snapshot) {
-                System.out.println("There are " + snapshot.getChildrenCount() + " users");
-                DataSnapshot snap = snapshot;
-                System.out.println(snap.getValue());
-                ArrayList<DataBaseUsers> test = new ArrayList<DataBaseUsers>();
-                for (DataSnapshot postSnapshot : snapshot.getChildren()) {
-                    DataBaseUsers user = postSnapshot.getValue(DataBaseUsers.class);
-                    System.out.println(user.getEmail() + " - " + user.getPassword());
-                }
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-                System.out.println("The read failed: " + firebaseError.getMessage());
-            }
-        });*/
 
         mButtonLogin.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -111,10 +78,7 @@ public class LoginActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "This password is too short", Toast.LENGTH_LONG).show();
                 } else if (passwordText.length() > 12) {
                     Toast.makeText(getApplicationContext(), "This password is too long", Toast.LENGTH_LONG).show();
-                } //else if (!User.isInternetWorking()) {
-                   // Toast.makeText(getApplicationContext(), "There is no internet connection", Toast.LENGTH_LONG).show();
-                //}
-                else {
+                } else {
                     boolean userExists = false;
                     for (int i = 0; i < userList.size(); i++) {
                         DataBaseUsers currUser = userList.get(i);
@@ -140,8 +104,6 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
-
-
 
     public final static boolean isValidEmail(CharSequence target) {
         return !TextUtils.isEmpty(target) && android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches();

@@ -1,4 +1,4 @@
-package com.bignerdranch.android.done;
+package com.bignerdranch.android.done.ActivitiesAndFragments;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -7,7 +7,6 @@ import android.support.v4.app.Fragment;                     // from support libr
 import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.LinearLayoutManager;       // from support library
 import android.support.v7.widget.RecyclerView;              // from support library
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -17,13 +16,16 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import com.bignerdranch.android.done.PopUps.DeleteListPickerFragment;
+import com.bignerdranch.android.done.PopUps.EditListTitlePickerFragment;
+import com.bignerdranch.android.done.R;
+import com.bignerdranch.android.done.PopUps.ShareListPickerFragment;
+import com.bignerdranch.android.done.UserData.User;
+import com.bignerdranch.android.done.PopUps.ListTitlePickerFragment;
+import com.bignerdranch.android.done.UserData.List;
+import com.bignerdranch.android.done.DataBaseAndLogIn.DataBaseLists;
 import com.firebase.client.Firebase;
-
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -33,10 +35,14 @@ public class UserListFragment extends Fragment {
 
     private static final String TAG = "DoneActivity";
     private static final String DIALOG_LIST_TITLE = "DialogListTitle";
+    private static final String DIALOG_EDIT_LIST_TITLE = "DialogEditListTitle";
+    private static final String DIALOG_SHARE_LIST = "DialogShareList";
+    private static final String DIALOG_DELETE_LIST = "DialogDeleteList";
     private RecyclerView mListRecyclerView;        // RecyclerView creates only enough views to fill the screen and scrolls them
     private ListAdapter mAdapter;                  // Adapter controls the data to be displayed by RecyclerView
     private List mNewList;
-    private DataBaseLists listNew;
+    private DataBaseLists listDBNew;
+    private Firebase mDataBaseListRef = new Firebase("https://doneaau.firebaseio.com/lists/");
 
     @Override
     public void onCreate(Bundle savedInstanceState) {   // it is Public because it can be called by various activities hosting it
@@ -70,8 +76,8 @@ public class UserListFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_item_new_list:
-                FragmentManager manager = getFragmentManager();
                 ListTitlePickerFragment dialog = new ListTitlePickerFragment(); //shows dialog for new list
+                FragmentManager manager = getFragmentManager();
                 dialog.setTargetFragment(UserListFragment.this, 10);
                 dialog.show(manager, DIALOG_LIST_TITLE);
                 return true;
@@ -84,22 +90,49 @@ public class UserListFragment extends Fragment {
         if (resultCode != Activity.RESULT_OK) {
             return;
         }
-        if (requestCode == 10) {
-            String title = (String) data.getSerializableExtra(ListTitlePickerFragment.EXTRA_TITLE);
+        switch (requestCode) {
+            case 10: {      // ADDING NEW LIST
 
-            listNew = new DataBaseLists();                      // saving new list data to database
-            listNew.setListId(UUID.randomUUID().toString());
-            listNew.setListName(title);
-            listNew.setCreatorId(User.get().getUserId());
-            new Firebase("https://doneaau.firebaseio.com/lists/").child(listNew.getListId()).setValue(listNew);
+                String title = (String) data.getSerializableExtra(ListTitlePickerFragment.EXTRA_TITLE);
 
-            mNewList = new List(User.get().getUserId());        // adding new List to Array
-            mNewList.setListId(listNew.getListId());
-            mNewList.setListName(title);
-            mNewList.setCreatorId(User.get().getUserId());
-            User.get().addUserList(mNewList);
+                listDBNew = new DataBaseLists();                      // saving new list data to database
+                listDBNew.setListId(UUID.randomUUID().toString());
+                listDBNew.setListName(title);
+                listDBNew.setCreatorId(User.get().getUserId());
+                mDataBaseListRef.child(listDBNew.getListId()).setValue(listDBNew);
 
-            updateUI();                                         // and updating UI
+                mNewList = new List(User.get().getUserId());        // adding new List to Array
+                mNewList.setListId(listDBNew.getListId());
+                mNewList.setListName(title);
+                mNewList.setCreatorId(User.get().getUserId());
+                User.get().addUserList(mNewList);
+
+                updateUI();                                         // and updating UI
+                break;
+            }
+            case 6: {       // CHANGING LIST NAME
+
+                String listId = (String) data.getSerializableExtra(EditListTitlePickerFragment.EXTRA_ID);
+
+                mDataBaseListRef.child(listId).child("listName").setValue(User.get().getList(listId).getListName()); // updating DB list name
+                                                                    // updating Array List Name is already done
+                updateUI();                                         // and updating UI
+                break;
+            }
+            case 7: {       // EDITING LIST
+
+            }
+            case 8: {       // DELETING LIST
+
+                String listId = (String) data.getSerializableExtra(DeleteListPickerFragment.EXTRA_ID);
+
+                mDataBaseListRef.child(listId).setValue(null);      // deleting DB list
+
+                User.get().getUserLists().remove(User.get().getList(listId)); // deleting list from User-List Array
+
+                updateUI();                                         // and updating UI
+                break;
+            }
         }
     }
 
@@ -125,10 +158,10 @@ public class UserListFragment extends Fragment {
             super(itemView);
             mTitleTextView = (TextView) itemView.findViewById(R.id.list_item_list_title_text_view);
             mTaskTextView = (TextView) itemView.findViewById(R.id.list_item_task_text_view);
+            mTaskButton = (Button) itemView.findViewById(R.id.task_button);
             mEditButton = (Button) itemView.findViewById(R.id.edit_list_button);
             mShareButton = (Button) itemView.findViewById(R.id.share_button);
             mDeleteButton = (Button) itemView.findViewById(R.id.delete_list_button);
-            mTaskButton = (Button) itemView.findViewById(R.id.task_button);
         }
 
         public void bindList(List list) {                   // list data entered in fragment viewholder
@@ -142,8 +175,44 @@ public class UserListFragment extends Fragment {
                     startActivity(intent);
                 }
             });
+            mEditButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (User.get().getUserId().equals(mList.getCreatorId())) {
+                        FragmentManager manager = getFragmentManager();
+                        EditListTitlePickerFragment dialog = EditListTitlePickerFragment.newInstance(mList.getListId()); //edits list title
+                        dialog.setTargetFragment(UserListFragment.this, 6);
+                        dialog.show(manager, DIALOG_EDIT_LIST_TITLE);
+                    }
+                    else {
+                        Toast.makeText(getContext(), "The list title can be edited only by its creator", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+            mShareButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    FragmentManager manager = getFragmentManager();
+                    ShareListPickerFragment dialog = new ShareListPickerFragment(); //shares list
+                    dialog.setTargetFragment(UserListFragment.this, 7);
+                    dialog.show(manager, DIALOG_SHARE_LIST);
+                }
+            });
+            mDeleteButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (User.get().getUserId().equals(mList.getCreatorId())) {
+                        FragmentManager manager = getFragmentManager();
+                        DeleteListPickerFragment dialog = DeleteListPickerFragment.newInstance(mList.getListId()); //deletes list
+                        dialog.setTargetFragment(UserListFragment.this, 8);
+                        dialog.show(manager, DIALOG_DELETE_LIST);
+                    }
+                    else {
+                        Toast.makeText(getContext(), "The list can be deleted only by its creator", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
         }
-
     }
 
     private class ListAdapter extends RecyclerView.Adapter<ListHolder> {  // adapter class
@@ -172,6 +241,4 @@ public class UserListFragment extends Fragment {
             return mLists.size();
         }
     }
-
-
 }

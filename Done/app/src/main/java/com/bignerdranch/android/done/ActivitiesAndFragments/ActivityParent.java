@@ -1,18 +1,18 @@
-package com.bignerdranch.android.done;
+package com.bignerdranch.android.done.ActivitiesAndFragments;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;                         // from support library
-import android.support.v4.app.FragmentActivity;                 // from support library
 import android.support.v4.app.FragmentManager;                  // from support library
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
 import android.view.MenuItem;
+import com.bignerdranch.android.done.R;
+import com.bignerdranch.android.done.DataBaseAndLogIn.StartingPageActivity;
 
 /**
  * Created by michalisgratsias on 03/04/16.
@@ -56,13 +56,6 @@ public abstract class ActivityParent extends AppCompatActivity implements Naviga
             super.onBackPressed();
         }
     }
-
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        // Inflate the main; this adds items to the action bar if it is present.
-//        getMenuInflater().inflate(R.menu.main, menu);
-//        return true;
-//    }
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
