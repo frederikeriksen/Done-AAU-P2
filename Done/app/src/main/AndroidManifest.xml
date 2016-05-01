@@ -36,7 +36,7 @@
             android:parentActivityName=".DataBaseAndLogIn.LoginActivity"
             android:theme="@style/AppTheme" />
         <activity
-            android:name=".DataBaseAndLogIn.StartingPageActivity"
+            android:name=".DataBaseAndLogIn.LogoPageActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

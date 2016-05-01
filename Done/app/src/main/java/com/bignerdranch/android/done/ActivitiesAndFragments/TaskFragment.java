@@ -21,8 +21,11 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.bignerdranch.android.done.PopUps.AssigningTaskPickerFragment;
 import com.bignerdranch.android.done.PopUps.DueDatePickerFragment;
 import com.bignerdranch.android.done.PopUps.EditTaskTitlePickerFragment;
+import com.bignerdranch.android.done.PopUps.HidingTaskPickerFragment;
 import com.bignerdranch.android.done.PopUps.NotesPickerFragment;
 import com.bignerdranch.android.done.PopUps.ReminderDatePickerFragment;
 import com.bignerdranch.android.done.R;
@@ -47,6 +50,8 @@ public class TaskFragment extends Fragment{
     private static final String DIALOG_DATE2 = "DialogDate2";
     private static final String DIALOG_NOTES = "DialogNotes";
     private static final String DIALOG_EDIT_TASK_TITLE = "EditTaskTitle";
+    private static final String DIALOG_ASSIGN_TASK = "AssignTask";
+    private static final String DIALOG_HIDE_TASK = "HideTask";
     private Firebase mDataBaseTaskRef = new Firebase("https://doneaau.firebaseio.com/tasks/");
     SimpleDateFormat format2 = new SimpleDateFormat("EEEE MMM dd, yyyy");
     private Task mTask;
@@ -148,10 +153,10 @@ public class TaskFragment extends Fragment{
                 break;
             }
             case 4: {      // ASSIGNING TASKS
-
+                break;
             }
             case 5: {      // HIDING TASKS
-
+                break;
             }
             case 12: {     // CHANGING TASK NAME
 
@@ -194,7 +199,6 @@ public class TaskFragment extends Fragment{
         }
         public void bindTask() {
             mTaskTitle.setText("Edit Task Name");
-            mTaskTitle.setEnabled(true);
             mTaskTitle.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -220,7 +224,20 @@ public class TaskFragment extends Fragment{
         }
         public void bindTask() {
             mAssignedTo.setText("None");
-            mAssignedTo.setEnabled(false);
+            mAssignedTo.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (User.get().getUserId().equals(mList.getCreatorId())) {
+                        FragmentManager manager = getFragmentManager();
+                        AssigningTaskPickerFragment dialog = new AssigningTaskPickerFragment();//assigns the task
+                        dialog.setTargetFragment(TaskFragment.this, 4);
+                        dialog.show(manager, DIALOG_ASSIGN_TASK);
+                    }
+                    else {
+                        Toast.makeText(getContext(), "The task can be assigned only by its creator", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
         }
     }
 
@@ -232,7 +249,20 @@ public class TaskFragment extends Fragment{
         }
         public void bindTask() {
             mHiddenFrom.setText("None");
-            mHiddenFrom.setEnabled(false);
+            mHiddenFrom.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (User.get().getUserId().equals(mList.getCreatorId())) {
+                        FragmentManager manager = getFragmentManager();
+                        HidingTaskPickerFragment dialog = new HidingTaskPickerFragment();//hides the task
+                        dialog.setTargetFragment(TaskFragment.this, 5);
+                        dialog.show(manager, DIALOG_HIDE_TASK);
+                    }
+                    else {
+                        Toast.makeText(getContext(), "The task can be assigned only by its creator", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
         }
     }
 

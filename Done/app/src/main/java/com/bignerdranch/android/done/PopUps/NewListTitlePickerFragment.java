@@ -17,7 +17,7 @@ import com.bignerdranch.android.done.R;
 /**
  * Created by michalisgratsias on 15/04/16.
  */
-public class ListTitlePickerFragment extends DialogFragment {
+public class NewListTitlePickerFragment extends DialogFragment {
 
     public static final String EXTRA_TITLE = "com.bignerdranch.android.done.listTitle";
     private EditText mTitleField;

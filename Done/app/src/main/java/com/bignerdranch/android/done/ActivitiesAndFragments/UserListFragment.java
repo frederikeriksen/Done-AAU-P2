@@ -2,6 +2,7 @@ package com.bignerdranch.android.done.ActivitiesAndFragments;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;                     // from support library
 import android.support.v4.app.FragmentManager;
@@ -23,7 +24,7 @@ import com.bignerdranch.android.done.R;
 import com.bignerdranch.android.done.PopUps.ShareListPickerFragment;
 import com.bignerdranch.android.done.UserData.Task;
 import com.bignerdranch.android.done.UserData.User;
-import com.bignerdranch.android.done.PopUps.ListTitlePickerFragment;
+import com.bignerdranch.android.done.PopUps.NewListTitlePickerFragment;
 import com.bignerdranch.android.done.UserData.List;
 import com.bignerdranch.android.done.DataBaseAndLogIn.DataBaseLists;
 import com.firebase.client.Firebase;
@@ -79,7 +80,7 @@ public class UserListFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_item_new_list:
-                ListTitlePickerFragment dialog = new ListTitlePickerFragment(); //shows dialog for new list
+                NewListTitlePickerFragment dialog = new NewListTitlePickerFragment(); //shows dialog for new list
                 FragmentManager manager = getFragmentManager();
                 dialog.setTargetFragment(UserListFragment.this, 10);
                 dialog.show(manager, DIALOG_LIST_TITLE);
@@ -96,7 +97,7 @@ public class UserListFragment extends Fragment {
         switch (requestCode) {
             case 10: {      // ADDING NEW LIST
 
-                String title = (String) data.getSerializableExtra(ListTitlePickerFragment.EXTRA_TITLE);
+                String title = (String) data.getSerializableExtra(NewListTitlePickerFragment.EXTRA_TITLE);
 
                 listDBNew = new DataBaseLists();                      // saving new list data to database
                 listDBNew.setListId(UUID.randomUUID().toString());
@@ -123,7 +124,7 @@ public class UserListFragment extends Fragment {
                 break;
             }
             case 7: {       // SHARING LIST
-
+                break;
             }
             case 8: {       // DELETING LIST AND ITS TASKS
 
@@ -174,6 +175,7 @@ public class UserListFragment extends Fragment {
         public void bindList(List list) {                   // list data entered in fragment viewholder
             mList = list;
             mTitleTextView.setText(mList.getListName());
+            mTaskButton.setTextColor(Color.WHITE);
             mTaskButton.setText(""+mList.getListTasks().size());            // updates task count
             mTaskButton.setOnClickListener(new View.OnClickListener() {
                 @Override

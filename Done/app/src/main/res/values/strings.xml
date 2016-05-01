@@ -9,14 +9,16 @@
     <string name="task_name_label">Task Name:</string>
     <string name="task_label">Tasks:</string>
     <string name="notes_label">Note:</string>
+    <string name="share_label">Share with:</string>
+    <string name="users_label">Users:</string>
     <string name="task_assigned_to_label">Assigned To:</string>
     <string name="task_hidden_from_label">Hidden From:</string>
     <string name="task_due_date_label">Due Date:</string>
     <string name="task_reminder_date_label">Reminder Date:</string>
     <string name="task_add_note_label">Notes:</string>
     <string name="task_add_photo_label">Add Photo:</string>
-    <string name="task_completed_label">Completed?</string>
-    <string name="task_verified_label">Verified?</string>
+    <string name="task_completed_label">Is this task Completed?</string>
+    <string name="task_verified_label">Is this task Verified?</string>
     <string name="completed_label">Completion:</string>
     <string name="verified_label">Verification:</string>
     <string name="list_title_picker_title">Name of New List:</string>
@@ -25,16 +27,18 @@
     <string name="list_delete_picker_title">Delete List:</string>
     <string name="task_title_picker_title">Name of New Task:</string>
     <string name="task_delete_picker_title">Delete Task:</string>
+    <string name="share_list_picker_title">Share List:</string>
+    <string name="assign_task_picker_title">Assign Task:</string>
+    <string name="hide_task_picker_title">Hide Task:</string>
     <string name="due_date_picker_title">Task Due Date:</string>
     <string name="reminder_date_picker_title">Task Reminder Date:</string>
     <string name="add_note_picker_title">Task Note:</string>
     <string name="new_task">New Task</string>
     <string name="new_list">New List</string>
-    <string name="show_subtitle">Show Subtitle</string>
+    <string name="show_subtitle">Show Subtitle</string> 
     <string name="hide_subtitle">Hide Subtitle</string>
-    <string name="subtitle_format">%1$s tasks</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+     <string name="subtitle_format">%1$s tasks</string>
+      <!-- TODO: Remove or change this placeholder text --> 
+    <string name="hello_blank_fragment">Hello blank fragment</string> 
     <string name="title_activity_register">RegisterActivity</string>
 </resources>

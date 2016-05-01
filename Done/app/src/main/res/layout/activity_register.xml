@@ -57,6 +57,7 @@
         android:layout_height="wrap_content"
         android:text="Register"
         android:id="@+id/buttonRegister"
+        android:background="@drawable/button"
         android:layout_centerHorizontal="true"
         android:layout_below="@+id/editTextRepeatPassword"/>
 

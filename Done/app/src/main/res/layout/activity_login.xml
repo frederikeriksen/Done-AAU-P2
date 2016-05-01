@@ -43,6 +43,7 @@
         android:layout_height="wrap_content"
         android:text="Login"
         android:id="@+id/buttonLogin"
+        android:background="@drawable/button"
         android:layout_below="@+id/editTextLoginPassword"
         android:layout_centerHorizontal="true" />
 

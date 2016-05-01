@@ -10,7 +10,7 @@ import com.bignerdranch.android.done.R;
 /**
  * Created by Ico on 19-Apr-16.
  */
-public class StartingPageActivity extends AppCompatActivity {
+public class LogoPageActivity extends AppCompatActivity {
     Button mButtonLogin;
     Button mButtonRegister;
 

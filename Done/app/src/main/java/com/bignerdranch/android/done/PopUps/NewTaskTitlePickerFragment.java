@@ -17,7 +17,7 @@ import com.bignerdranch.android.done.R;
 /**
  * Created by michalisgratsias on 17/04/16.
  */
-public class TaskTitlePickerFragment extends DialogFragment{
+public class NewTaskTitlePickerFragment extends DialogFragment{
 
     public static final String EXTRA_TITLE = "com.bignerdranch.android.done.taskTitle";
     private EditText mTitleField;

@@ -12,7 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import com.bignerdranch.android.done.R;
-import com.bignerdranch.android.done.DataBaseAndLogIn.StartingPageActivity;
+import com.bignerdranch.android.done.DataBaseAndLogIn.LogoPageActivity;
 
 /**
  * Created by michalisgratsias on 03/04/16.
@@ -81,7 +81,7 @@ public abstract class ActivityParent extends AppCompatActivity implements Naviga
             // Handle notifications
         } else if (id == R.id.nav_sign_out) {
             // Sign out
-            Intent intent = new Intent(getApplicationContext(), StartingPageActivity.class);
+            Intent intent = new Intent(getApplicationContext(), LogoPageActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
             finish();

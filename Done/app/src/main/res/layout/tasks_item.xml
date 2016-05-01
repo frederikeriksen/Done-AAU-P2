@@ -31,26 +31,29 @@
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/task_completed_check_box"
         android:padding="4dp"
-        tools:text="Task Due Date"
-        android:layout_marginTop="60dp"/>
+        android:layout_marginTop="70dp"/>
 
     <Button android:id="@+id/delete_task_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             style="?android:attr/buttonStyleSmall"
+            android:background="@drawable/button"
             android:drawableRight="@drawable/ic_delete"
             android:drawableEnd="@drawable/ic_delete"
             android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"/>
+            android:layout_alignParentRight="true"
+            android:layout_margin="3dp"/>
 
     <Button android:id="@+id/edit_task_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             style="?android:attr/buttonStyleSmall"
+            android:background="@drawable/button"
             android:layout_below="@id/delete_task_button"
             android:drawableRight="@drawable/ic_edit"
             android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"/>
+            android:layout_alignParentRight="true"
+            android:layout_margin="3dp"/>
 
     <View
         android:layout_width="match_parent"

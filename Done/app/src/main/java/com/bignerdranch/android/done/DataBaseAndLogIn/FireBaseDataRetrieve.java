@@ -35,7 +35,7 @@ public class FireBaseDataRetrieve extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Toast.makeText(this, "Service started", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "Service started", Toast.LENGTH_SHORT).show();
 
         curUser = User.get();
         Log.d(TAG, "User Name: " + User.get().getUserName());                // LOGS THE NAME OF THE USER

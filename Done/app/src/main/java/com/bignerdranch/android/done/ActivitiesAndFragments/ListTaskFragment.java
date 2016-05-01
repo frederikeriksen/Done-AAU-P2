@@ -7,7 +7,6 @@ import android.support.v4.app.Fragment;                 // from support library
 import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.LinearLayoutManager;   // from support library
 import android.support.v7.widget.RecyclerView;          // from support library
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,7 +20,7 @@ import android.widget.Toast;
 import com.bignerdranch.android.done.PopUps.DeleteTaskPickerFragment;
 import com.bignerdranch.android.done.R;
 import com.bignerdranch.android.done.UserData.Task;
-import com.bignerdranch.android.done.PopUps.TaskTitlePickerFragment;
+import com.bignerdranch.android.done.PopUps.NewTaskTitlePickerFragment;
 import com.bignerdranch.android.done.UserData.List;
 import com.bignerdranch.android.done.DataBaseAndLogIn.DataBaseTasks;
 import com.bignerdranch.android.done.UserData.User;
@@ -94,7 +93,7 @@ public class ListTaskFragment extends Fragment{
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_item_new_task:
-                TaskTitlePickerFragment dialog = new TaskTitlePickerFragment(); //shows dialog for new task
+                NewTaskTitlePickerFragment dialog = new NewTaskTitlePickerFragment(); //shows dialog for new task
                 FragmentManager manager = getFragmentManager();
                 dialog.setTargetFragment(ListTaskFragment.this, 11);
                 dialog.show(manager, DIALOG_TASK_TITLE);
@@ -111,7 +110,7 @@ public class ListTaskFragment extends Fragment{
         switch (requestCode) {
             case 11: {      // ADDING NEW TASK
 
-                String title = (String) data.getSerializableExtra(TaskTitlePickerFragment.EXTRA_TITLE);
+                String title = (String) data.getSerializableExtra(NewTaskTitlePickerFragment.EXTRA_TITLE);
 
                 taskNew = new DataBaseTasks();                      // saving new task data to database
                 Date created = new Date();
@@ -178,7 +177,7 @@ public class ListTaskFragment extends Fragment{
         public void bindTask(Task task) {
             mTask = task;
             mTitleTextView.setText(mTask.getTaskName());
-            mDateTextView.setText("Date Created: " + format.format(mTask.getCreatedDate()));
+            mDateTextView.setText("Created at: " + format.format(mTask.getCreatedDate()));
             mCompletedCheckBox.setChecked(mTask.isCompleted());
             mEditButton.setOnClickListener(new View.OnClickListener() {
                 @Override
