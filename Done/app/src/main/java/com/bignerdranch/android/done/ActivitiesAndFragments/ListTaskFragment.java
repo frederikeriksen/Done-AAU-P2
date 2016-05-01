@@ -112,6 +112,8 @@ public class ListTaskFragment extends Fragment{
 
                 String title = (String) data.getSerializableExtra(NewTaskTitlePickerFragment.EXTRA_TITLE);
 
+                if (title == null) break;                             // does not create empty task
+
                 taskNew = new DataBaseTasks();                      // saving new task data to database
                 Date created = new Date();
                 taskNew.setTaskId(UUID.randomUUID().toString());
@@ -186,6 +188,13 @@ public class ListTaskFragment extends Fragment{
                     startActivity(intent);                      // passes taskId, listID
                 }
             });
+            mEditButton.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    Toast.makeText(getContext(), "Edit Task data", Toast.LENGTH_SHORT).show();
+                    return true;
+                }
+            });
             mDeleteButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -198,6 +207,13 @@ public class ListTaskFragment extends Fragment{
                     else {
                         Toast.makeText(getContext(), "The task can be deleted only by its creator", Toast.LENGTH_SHORT).show();
                     }
+                }
+            });
+            mDeleteButton.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    Toast.makeText(getContext(), "Delete Task", Toast.LENGTH_SHORT).show();
+                    return true;
                 }
             });
         }

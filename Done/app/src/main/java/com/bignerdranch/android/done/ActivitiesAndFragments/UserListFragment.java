@@ -99,7 +99,9 @@ public class UserListFragment extends Fragment {
 
                 String title = (String) data.getSerializableExtra(NewListTitlePickerFragment.EXTRA_TITLE);
 
-                listDBNew = new DataBaseLists();                      // saving new list data to database
+                if (title == null) break;                             // does not create empty list
+
+                listDBNew = new DataBaseLists();                    // saving new list data to database
                 listDBNew.setListId(UUID.randomUUID().toString());
                 listDBNew.setListName(title);
                 listDBNew.setCreatorId(User.get().getUserId());
@@ -184,6 +186,13 @@ public class UserListFragment extends Fragment {
                     startActivity(intent);
                 }
             });
+            mTaskButton.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    Toast.makeText(getContext(), "Create & Edit Tasks", Toast.LENGTH_SHORT).show();
+                    return true;
+                }
+            });
             mEditButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -198,6 +207,13 @@ public class UserListFragment extends Fragment {
                     }
                 }
             });
+            mEditButton.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    Toast.makeText(getContext(), "Edit List Name", Toast.LENGTH_SHORT).show();
+                    return true;
+                }
+            });
             mShareButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -205,6 +221,13 @@ public class UserListFragment extends Fragment {
                     ShareListPickerFragment dialog = new ShareListPickerFragment(); //shares list
                     dialog.setTargetFragment(UserListFragment.this, 7);
                     dialog.show(manager, DIALOG_SHARE_LIST);
+                }
+            });
+            mShareButton.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    Toast.makeText(getContext(), "Share list with other users", Toast.LENGTH_SHORT).show();
+                    return true;
                 }
             });
             mDeleteButton.setOnClickListener(new View.OnClickListener() {
@@ -219,6 +242,13 @@ public class UserListFragment extends Fragment {
                     else {
                         Toast.makeText(getContext(), "The list can be deleted only by its creator", Toast.LENGTH_SHORT).show();
                     }
+                }
+            });
+            mDeleteButton.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    Toast.makeText(getContext(), "Delete list", Toast.LENGTH_SHORT).show();
+                    return true;
                 }
             });
         }
