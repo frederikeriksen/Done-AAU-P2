@@ -3,6 +3,8 @@ package com.bignerdranch.android.done.ActivitiesAndFragments;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;                     // from support library
+import android.util.Log;
+
 import com.bignerdranch.android.done.DataBaseAndLogIn.FireBaseDataRetrieve;
 import com.bignerdranch.android.done.UserData.User;
 
@@ -10,6 +12,8 @@ import com.bignerdranch.android.done.UserData.User;
  * Created by michalisgratsias on 03/04/16.
  */
 public class UserActivity extends ActivityParent {
+
+    private static final String TAG = "DoneActivity";
 
     @Override
     protected Fragment createFragment() {
@@ -21,13 +25,15 @@ public class UserActivity extends ActivityParent {
         Intent databaseService = new Intent(this, FireBaseDataRetrieve.class); //HERE WE START THE SERVICE WHICH PULLS DATA!!!
         startService(databaseService);
         super.onCreate(savedInstanceState);
-        getSupportActionBar().setTitle(User.get().getUserName() + " - My To-Do Lists");// + "(" + User.get().getUserLists().size() + ")");
+        Log.d(TAG, " Activity Created ");
+        getSupportActionBar().setTitle(User.get().getUserName() + " - My " + User.get().getUserLists().size() + " To-Do Lists");
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        getSupportActionBar().setTitle(User.get().getUserName() + " - My To-Do Lists");//+ "(" + User.get().getUserLists().size() + ")");
+        Log.d(TAG, " Activity Resumed ");
+        getSupportActionBar().setTitle(User.get().getUserName() + " - My " + User.get().getUserLists().size() + " To-Do Lists");
     }
 }
 

@@ -31,13 +31,13 @@ public class ListActivity extends ActivityParent {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         String listId = (String) getIntent().getSerializableExtra(EXTRA_LIST_ID);
-        getSupportActionBar().setTitle(User.get().getList(listId).getListName());
+        getSupportActionBar().setTitle("List: " + User.get().getList(listId).getListName());
     }
 
     @Override
     public void onResume() {
         super.onResume();
         String listId = (String) getIntent().getSerializableExtra(EXTRA_LIST_ID);
-        getSupportActionBar().setTitle(User.get().getList(listId).getListName());
+        getSupportActionBar().setTitle("List: " + User.get().getList(listId).getListName());
     }
 }

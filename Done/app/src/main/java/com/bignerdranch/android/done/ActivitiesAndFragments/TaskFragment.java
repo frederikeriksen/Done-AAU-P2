@@ -8,7 +8,9 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;                 // from support library
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -165,6 +167,7 @@ public class TaskFragment extends Fragment{
                 mDataBaseTaskRef.child(mTask.getTaskId()).child("taskName").setValue(taskTitle); // updating DB task name
                                                                     // updating Array Task Name is already done
                 updateUI();                                         // and updating UI
+                ((TaskActivity)getActivity()).getSupportActionBar().setTitle("Task: "+ mTask.getTaskName());
                 break;
             }
         }

@@ -59,8 +59,8 @@ public class UserListFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_user_list, container, false);
         mListRecyclerView = (RecyclerView)view.findViewById(R.id.lists_recycler_view);
-        mListRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));    // handles the
-        updateUI();     // sets up the UI                     // positioning of items and defines the scrolling behaviour
+        mListRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));    // handles the positioning of items and defines the scrolling behaviour
+        updateUI();     // sets up the UI
         return view;
     }
 
@@ -112,7 +112,8 @@ public class UserListFragment extends Fragment {
                 mNewList.setListName(title);
                 mNewList.setCreatorId(User.get().getUserId());
                 User.get().addUserList(mNewList);
-
+                Log.d(TAG, " List Created ");
+                ((UserActivity)getActivity()).getSupportActionBar().setTitle(User.get().getUserName() + " - My " + User.get().getUserLists().size() + " To-Do Lists");
                 updateUI();                                         // and updating UI
                 break;
             }
@@ -272,6 +273,7 @@ public class UserListFragment extends Fragment {
         @Override
         public void onBindViewHolder(ListHolder holder, int position) { // binds viewholder's view to a model object
             List list = mLists.get(position);
+            ((UserActivity)getActivity()).getSupportActionBar().setTitle(User.get().getUserName() + " - My " + User.get().getUserLists().size() + " To-Do Lists");
             holder.bindList(list);
         }
 
