@@ -59,10 +59,15 @@ public class TaskFragment extends Fragment{
     private Task mTask;
     private List mList;
     private Button mTaskTitle;
+    private TextView mTaskTitleTextView;
     private Button mAssignedTo;
+    private TextView mAssignedToTextView;
     private Button mHiddenFrom;
+    private TextView mHiddenFromTextView;
     private Button mDueDateButton;
+    private TextView mDueDateTextView;
     private Button mReminderDateButton;
+    private TextView mReminderDateTextView;
     private Button mAddNote;
     private TextView mNotesText;
     private Button mAddPhoto;
@@ -92,6 +97,12 @@ public class TaskFragment extends Fragment{
         String listId = (String) getArguments().getSerializable(ARG_LIST_ID);   //  RETRIEVES List ID from Intent
         mTask = User.get().getList(listId).getTask(taskId);    // using a get method to get Task from ids
         mList = User.get().getList(listId);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateUI();
     }
 
     private RecyclerView mTaskRecyclerView;         // RecyclerView creates only enough views to fill the screen and scrolls them
@@ -173,19 +184,15 @@ public class TaskFragment extends Fragment{
         }
     }
 
-    private void updateDueDate() {
-        mDueDateButton.setText(format2.format(mTask.getDueDate()));
-    }
+    private void updateTaskTitle() {mTaskTitleTextView.setText(mTask.getTaskName());}
 
-    private void updateReminderDate() {
-        mReminderDateButton.setText(format2.format(mTask.getReminderDate()));
-    }
+    private void updateAssignees() {mAssignedToTextView.setText("");}
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        updateUI();
-    }
+    private void updateViewers() {mHiddenFromTextView.setText("");}
+
+    private void updateDueDate() {mDueDateTextView.setText(format2.format(mTask.getDueDate()));}
+
+    private void updateReminderDate() { mReminderDateTextView.setText(format2.format(mTask.getReminderDate())); }
 
     private void updateUI() {
         if (mAdapter == null) {
@@ -199,9 +206,10 @@ public class TaskFragment extends Fragment{
         public TaskHolder0(View itemView) {     // constructor - stashes the views
             super(itemView);
             mTaskTitle = (Button) itemView.findViewById(R.id.task_title);
+            mTaskTitleTextView = (TextView) itemView.findViewById(R.id.title_text_view);
         }
         public void bindTask() {
-            mTaskTitle.setText("Edit Task Name");
+            updateTaskTitle();
             mTaskTitle.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -216,6 +224,13 @@ public class TaskFragment extends Fragment{
                     }
                 }
             });
+            mTaskTitle.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    Toast.makeText(getContext(), "Edit Task Name", Toast.LENGTH_SHORT).show();
+                    return true;
+                }
+            });
         }
     }
 
@@ -224,9 +239,10 @@ public class TaskFragment extends Fragment{
         public TaskHolder1(View itemView) {     // constructor - stashes the views
             super(itemView);
             mAssignedTo = (Button) itemView.findViewById(R.id.assigned_to);
+            mAssignedToTextView = (TextView) itemView.findViewById(R.id.assigned_to_text_view);
         }
         public void bindTask() {
-            mAssignedTo.setText("None");
+            updateAssignees();
             mAssignedTo.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -241,6 +257,13 @@ public class TaskFragment extends Fragment{
                     }
                 }
             });
+            mAssignedTo.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    Toast.makeText(getContext(), "Assign Task", Toast.LENGTH_SHORT).show();
+                    return true;
+                }
+            });
         }
     }
 
@@ -249,9 +272,10 @@ public class TaskFragment extends Fragment{
         public TaskHolder2(View itemView) {     // constructor - stashes the views
             super(itemView);
             mHiddenFrom = (Button) itemView.findViewById(R.id.hidden_from);
+            mHiddenFromTextView = (TextView) itemView.findViewById(R.id.hidden_from_text_view);
         }
         public void bindTask() {
-            mHiddenFrom.setText("None");
+            updateViewers();
             mHiddenFrom.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -266,6 +290,13 @@ public class TaskFragment extends Fragment{
                     }
                 }
             });
+            mHiddenFrom.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    Toast.makeText(getContext(), "Hide Task", Toast.LENGTH_SHORT).show();
+                    return true;
+                }
+            });
         }
     }
 
@@ -274,6 +305,7 @@ public class TaskFragment extends Fragment{
         public TaskHolder3(View itemView) {     // constructor - stashes the views
             super(itemView);
             mDueDateButton = (Button) itemView.findViewById(R.id.due_date);
+            mDueDateTextView = (TextView) itemView.findViewById(R.id.task_due_date_text_view);
         }
         public void bindTask() {
             updateDueDate();
@@ -286,6 +318,13 @@ public class TaskFragment extends Fragment{
                     dialog.show(manager, DIALOG_DATE1);
                 }
             });
+            mDueDateButton.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    Toast.makeText(getContext(), "Set a Due Date for Task", Toast.LENGTH_SHORT).show();
+                    return true;
+                }
+            });
         }
     }
 
@@ -294,6 +333,7 @@ public class TaskFragment extends Fragment{
         public TaskHolder4(View itemView) {     // constructor - stashes the views
             super(itemView);
             mReminderDateButton = (Button) itemView.findViewById(R.id.reminder_date);
+            mReminderDateTextView = (TextView) itemView.findViewById(R.id.task_reminder_date_text_view);
         }
         public void bindTask() {
             updateReminderDate();
@@ -304,6 +344,13 @@ public class TaskFragment extends Fragment{
                     ReminderDatePickerFragment dialog = ReminderDatePickerFragment.newInstance(mTask.getReminderDate()); //shows reminder date
                     dialog.setTargetFragment(TaskFragment.this, 1);
                     dialog.show(manager, DIALOG_DATE2);
+                }
+            });
+            mReminderDateButton.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    Toast.makeText(getContext(), "Set a Reminder Date for Task", Toast.LENGTH_SHORT).show();
+                    return true;
                 }
             });
         }
@@ -327,6 +374,13 @@ public class TaskFragment extends Fragment{
                     dialog.show(manager, DIALOG_NOTES);
                 }
             });
+            mAddNote.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    Toast.makeText(getContext(), "Add Notes", Toast.LENGTH_SHORT).show();
+                    return true;
+                }
+            });
         }
     }
 
@@ -337,7 +391,6 @@ public class TaskFragment extends Fragment{
             mAddPhoto = (Button) itemView.findViewById(R.id.add_photo);
         }
         public void bindTask() {
-            mAddPhoto.setText("Add Photo");
             mAddPhoto.setEnabled(true);
             mAddPhoto.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -360,7 +413,13 @@ public class TaskFragment extends Fragment{
                     }
                 }
             });
-
+            mAddPhoto.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    Toast.makeText(getContext(), "Add Photos", Toast.LENGTH_SHORT).show();
+                    return true;
+                }
+            });
         }
     }
     //this is for the photo

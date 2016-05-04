@@ -2,14 +2,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
              android:layout_width="match_parent"
              android:layout_height="wrap_content"
-             android:padding="4dp"
              android:orientation="vertical">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="20dp"
-        android:text="@string/completed_label"/>
+        android:textColor="@color/textColor"
+        android:textSize= "16sp"
+        android:text="COMPLETION"
+        android:gravity="center_horizontal"/>
 
     <CheckBox android:id="@+id/task_completed"
               android:layout_width="match_parent"
@@ -17,7 +18,7 @@
               android:button="@null"
               android:drawableRight="?android:attr/listChoiceIndicatorMultiple"
               android:text="@string/task_completed_label"
-              android:layout_marginLeft="150dp"/>
+              android:layout_marginLeft="24dp"/>
 
     <View
         android:layout_width="match_parent"

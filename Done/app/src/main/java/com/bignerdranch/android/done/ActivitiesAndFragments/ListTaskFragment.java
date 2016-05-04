@@ -179,7 +179,7 @@ public class ListTaskFragment extends Fragment{
         public void bindTask(Task task) {
             mTask = task;
             mTitleTextView.setText(mTask.getTaskName());
-            mDateTextView.setText("Created at: " + format.format(mTask.getCreatedDate()));
+            mDateTextView.setText(format.format(mTask.getCreatedDate()));
             mCompletedCheckBox.setChecked(mTask.isCompleted());
             mEditButton.setOnClickListener(new View.OnClickListener() {
                 @Override
