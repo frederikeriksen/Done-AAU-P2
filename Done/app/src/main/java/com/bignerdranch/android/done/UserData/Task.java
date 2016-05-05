@@ -22,6 +22,7 @@ public class Task {
     private Date mReminderDate;
     private ArrayList<String> mNotes;
     private String mPhoto;
+    private ArrayList<String> mPhotoArr = new ArrayList<>();
     //idea is to save photo as a string here and in the getter and setter return it as bitmap;
     //private ArrayList<Image> mPhotos;
     private boolean mCompleted;
@@ -136,13 +137,24 @@ public class Task {
 
         return photo;
     }
+    public ArrayList<String> getPhotoArr() {
+        return mPhotoArr;
+    }
+
+    public String getPhotoString(){
+        return mPhoto;
+    }
 
     public void setPhoto(Bitmap photo) {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         photo.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
         byte[] byteArray = byteArrayOutputStream .toByteArray();
         String encoded = Base64.encodeToString(byteArray, Base64.DEFAULT);
+        mPhotoArr.add(encoded);
         mPhoto = encoded;
+    }
+    public void setPhotoString(String photo){
+        mPhotoArr.add(photo);
     }
 
     public boolean isCompleted() {

@@ -31,21 +31,54 @@
         android:textColor="@color/textColor"
         android:text="Photos:"/>
 
-    <ImageView
-        android:id="@+id/show_photo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/add_photo"
-        android:layout_marginLeft="20dp"
-        android:adjustViewBounds="true"
-        android:maxHeight="80dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="10dp"/>
+
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:columnCount="2"
+        android:rowCount="2"
+        android:id="@+id/gridLayoutPhotos"
+        android:layout_below="@+id/photos_text_view"
+        android:layout_marginLeft="30dp">
+        <ImageView
+            android:id="@+id/show_photo1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:adjustViewBounds="true"
+            android:maxHeight="60dp"
+            android:layout_marginBottom="10dp"/>
+        <ImageView
+            android:id="@+id/show_photo2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:adjustViewBounds="true"
+            android:maxHeight="60dp"
+            android:layout_marginBottom="10dp"/>
+        <ImageView
+            android:id="@+id/show_photo3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:adjustViewBounds="true"
+            android:maxHeight="60dp"
+            android:layout_marginBottom="10dp"/>
+        <ImageView
+            android:id="@+id/show_photo4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:adjustViewBounds="true"
+            android:maxHeight="60dp"
+            android:layout_marginBottom="10dp"/>
+    </GridLayout>
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_below="@id/show_photo"
+        android:layout_below="@id/gridLayoutPhotos"
         android:background="@color/mainBlueColor"/>
+
 
 </RelativeLayout>

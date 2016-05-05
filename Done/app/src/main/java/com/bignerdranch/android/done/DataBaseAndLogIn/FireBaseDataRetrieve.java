@@ -16,6 +16,7 @@ import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 
 /**
  * Created by Ico on 19-Apr-16.
@@ -155,6 +156,9 @@ public class FireBaseDataRetrieve extends Service {
                             } catch (ParseException e) {
                             }
                         }
+                        if (task.getNotes() != null) {
+                                userTask.addNote(task.getNotes());
+                        }
                         userTask.setCompleted(task.isCompleted());
                         userTask.setVerified(task.isVerified());
 
@@ -260,7 +264,59 @@ public class FireBaseDataRetrieve extends Service {
                 System.out.println("The read failed: " + firebaseError.getMessage());
             }
         });
+        Firebase mRefPhotos = new Firebase("https://doneaau.firebaseio.com/photos/");
+
+        mRefPhotos.addChildEventListener(new ChildEventListener() {          // Retrieves user-list data as they appear in the database
+
+            @Override
+            public void onChildAdded(DataSnapshot snapshot, String previousChildKey) { // Retrieves new/old lists for the user
+                boolean taskExists = false;
+
+                for (List list:curUser.getUserLists()) {
+                    for (Task task:list.getListTasks()){
+                        if(task.getTaskId().equals(snapshot.getKey()) ){
+                            taskExists = true;
+                            int counter = 1;
+                            for (int i = 1; i<=snapshot.getChildrenCount(); i++){
+                                if (snapshot.hasChild(String.valueOf(i))){
+                                    String temp = snapshot.child(String.valueOf(i)).getValue().toString();
+                                    task.setPhotoString(temp);
+                                }
+
+                            }
+
+                            break;
+                        }
+                    }
+                }
+                System.out.println(snapshot);
+
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) { // Retrieves updated list data for the user
+
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {         // Retrieves deleted lists for the user
+
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+                System.out.println("The read failed: " + firebaseError.getMessage());
+            }
+        });
         return super.onStartCommand(intent, flags, startId);
+
+
     }
 
     @Override
