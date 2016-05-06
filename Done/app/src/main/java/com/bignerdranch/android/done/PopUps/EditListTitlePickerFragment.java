@@ -12,21 +12,21 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import com.bignerdranch.android.done.R;
-import com.bignerdranch.android.done.UserData.User;
+import com.bignerdranch.android.done.AppData.User;
 
 /**
  * Created by michalisgratsias on 29/04/16.
  */
 public class EditListTitlePickerFragment extends android.support.v4.app.DialogFragment {
 
-    private static final String ARG_EDIT_LIST_TITLE = "editListTitle";
+    private static final String ARG_LIST_ID = "listId";
     public static final String EXTRA_ID = "com.bignerdranch.android.done.listId";
     private EditText mTitleField;
     private String mListTitle;
 
     public static EditListTitlePickerFragment newInstance(String listId) {  // method to set fragment arguments
         Bundle args = new Bundle();                                         // that replaces the usual fragment constructor
-        args.putSerializable(ARG_EDIT_LIST_TITLE, listId);
+        args.putSerializable(ARG_LIST_ID, listId);
         EditListTitlePickerFragment fragment = new EditListTitlePickerFragment();
         fragment.setArguments(args);
         return fragment;
@@ -35,7 +35,7 @@ public class EditListTitlePickerFragment extends android.support.v4.app.DialogFr
     @Override
     public Dialog onCreateDialog (Bundle savedInstance) {
 
-        final String listId = (String) getArguments().getSerializable(ARG_EDIT_LIST_TITLE);
+        final String listId = (String) getArguments().getSerializable(ARG_LIST_ID);
         final String listTitle = User.get().getList(listId).getListName();
 
         View v = LayoutInflater.from(getActivity())

@@ -6,7 +6,7 @@ import android.support.v4.app.Fragment;                     // from support libr
 import android.util.Log;
 
 import com.bignerdranch.android.done.DataBaseAndLogIn.FireBaseDataRetrieve;
-import com.bignerdranch.android.done.UserData.User;
+import com.bignerdranch.android.done.AppData.User;
 
 /**
  * Created by michalisgratsias on 03/04/16.

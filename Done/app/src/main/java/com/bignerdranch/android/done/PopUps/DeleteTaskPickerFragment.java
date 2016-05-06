@@ -10,7 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 import com.bignerdranch.android.done.R;
-import com.bignerdranch.android.done.UserData.User;
+import com.bignerdranch.android.done.AppData.User;
 
 /**
  * Created by michalisgratsias on 29/04/16.

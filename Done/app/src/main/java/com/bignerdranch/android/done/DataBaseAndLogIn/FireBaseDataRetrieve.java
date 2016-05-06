@@ -4,12 +4,11 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.bignerdranch.android.done.ActivitiesAndFragments.UserActivity;
-import com.bignerdranch.android.done.UserData.List;
-import com.bignerdranch.android.done.UserData.Task;
-import com.bignerdranch.android.done.UserData.User;
+import com.bignerdranch.android.done.AppData.List;
+import com.bignerdranch.android.done.AppData.RegisteredUsers;
+import com.bignerdranch.android.done.AppData.Task;
+import com.bignerdranch.android.done.AppData.User;
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
@@ -17,6 +16,7 @@ import com.firebase.client.FirebaseError;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+
 
 /**
  * Created by Ico on 19-Apr-16.
@@ -26,7 +26,19 @@ public class FireBaseDataRetrieve extends Service {
     private static final String TAG = "DoneActivity";
     SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd, yyyy hh:mm a");
     SimpleDateFormat format2 = new SimpleDateFormat("EEEE MMM dd, yyyy");
+    ArrayList<String> users = new ArrayList<String>();
     User curUser;
+    boolean userAlreadyAdded;
+    boolean listAlreadyAdded;
+    boolean listNameAlreadyUpdated;
+    boolean listNotAlreadyDeleted;
+    boolean taskAlreadyAdded;
+    boolean taskNameAlreadyUpdated;
+    boolean dueDateAlreadyUpdated;
+    boolean reminderDateAlreadyUpdated;
+    boolean completionAlreadyUpdated;
+    boolean verificationAlreadyUpdated;
+    boolean taskNotAlreadyDeleted;
 
     public FireBaseDataRetrieve() {
     }
@@ -43,28 +55,84 @@ public class FireBaseDataRetrieve extends Service {
         curUser = User.get();
         Log.d(TAG, "User Name: " + User.get().getUserName());                // LOGS THE NAME OF THE USER
 
-        Firebase mRefLists = new Firebase("https://doneaau.firebaseio.com/lists/");
+        //           R E T R I E V E S     U S E R S
+        Firebase mRefUsers = new Firebase("https://doneaau.firebaseio.com/users/");
+
+        mRefUsers.addChildEventListener(new ChildEventListener() {          // Retrieves user registration data as they appear in the database
+
+            @Override
+            public void onChildAdded(DataSnapshot snapshot, String previousChildKey) { // Retrieves new/old registered users for the user
+
+                DataBaseUsers user = snapshot.getValue(DataBaseUsers.class);
+
+                Log.d(TAG, "User Name: " + user.getUserName());          // LOGS THE NAME OF THE USER
+
+                userAlreadyAdded = RegisteredUsers.get().getUser(user.getUserId()) != null;
+
+                Log.d(TAG, "User already added: " + userAlreadyAdded);  // LOGS IF THE USER IS ALREADY ADDED TO REG.USERS-ARRAY
+
+                if (!userAlreadyAdded) {                                // USER IS NOT YET ADDED TO REG.USERS-ARRAY
+                    DataBaseUsers currUser = new DataBaseUsers();
+                    currUser.setUserId(user.getUserId());
+                    currUser.setUserName(user.getUserName());
+                    currUser.setPassword(user.getPassword());
+                    currUser.setEmail(user.getEmail());
+                    RegisteredUsers.get().getUsers().add(currUser);     // ADDS DATABASE USER TO REG.USERS-ARRAY
+                }
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) { // Retrieves updated data for the user
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {         // Retrieves deleted users
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+                System.out.println("The read failed: " + firebaseError.getMessage());
+            }
+        });
+
+        //           R E T R I E V E S     L I S T S
+        final Firebase mRefLists = new Firebase("https://doneaau.firebaseio.com/lists/");
 
         mRefLists.addChildEventListener(new ChildEventListener() {          // Retrieves user-list data as they appear in the database
 
             @Override
             public void onChildAdded(DataSnapshot snapshot, String previousChildKey) { // Retrieves new/old lists for the user
 
-                DataBaseLists list = snapshot.getValue(DataBaseLists.class);
+                String listId = (String) snapshot.child("listId").getValue();
+                String creatorId = (String) snapshot.child("creatorId").getValue();
+                String listName = (String) snapshot.child("listName").getValue();
+                users.clear();
+                for (DataSnapshot user : snapshot.child("shared_users/").getChildren()) {
+                    users.add(user.getKey());
+                }
 
-                if (curUser.getUserId().equals(list.getCreatorId())) {      // THE DATABASE LIST IS CREATED BY THIS USER
+                if (curUser.getUserId().equals(creatorId) || users.contains(curUser.getUserId())) {      // THE DATABASE LIST IS CREATED BY THIS USER
+                                                                                                        // OR IS SHARED WITH THIS USER
+                    Log.d(TAG, "List Name: " + listName);          // LOGS THE NAME OF THE LIST
 
-                    Log.d(TAG, "List Name: " + list.getListName());          // LOGS THE NAME OF THE LIST
-
-                    boolean listAlreadyAdded = curUser.getList(list.getListId()) != null;
+                    listAlreadyAdded = curUser.getList(listId) != null;
 
                     Log.d(TAG, "List already added: " + listAlreadyAdded);  // LOGS IF THE LIST IS ALREADY ADDED TO LISTS-ARRAY
 
-                    if (!listAlreadyAdded) {                                // LIST IS NOT YET ADDED TO USER LISTS-ARRAY
-                        List currList = new List(list.getCreatorId());
-                        currList.setListId(list.getListId());
-                        currList.setListName(list.getListName());
-                        currList.setCreatorId(list.getCreatorId());
+                    if (!listAlreadyAdded) {                                // LIST IS NOT YET ADDED TO USER LISTS-ARRAY from CODE
+                        final List currList = new List(creatorId);
+                        currList.setListId(listId);
+                        currList.setListName(listName);
+                        currList.setCreatorId(creatorId);
+
+                        for (DataSnapshot user : snapshot.child("shared_users/").getChildren()) {
+                            currList.addListUser(user.getKey());
+                            Log.d(TAG, "List Shared With: " + RegisteredUsers.get().getUser(user.getKey()).getUserName());
+                        }
                         curUser.addUserList(currList);                      // ADDS DATABASE LIST TO USER LISTS-ARRAY
                     }
                 }
@@ -76,15 +144,20 @@ public class FireBaseDataRetrieve extends Service {
                 String listId = (String) dataSnapshot.child("listId").getValue();
                 String title = (String) dataSnapshot.child("listName").getValue();
 
+                User.get().getList(listId).getListUsers().clear();
+                for (DataSnapshot userSnapshot: dataSnapshot.child("shared_users/").getChildren()) {
+                    User.get().getList(listId).getListUsers().add(userSnapshot.getKey());   // CHANGES SHARED USERS IN LIST
+                }
+
                 Log.d(TAG, "Updated List Name: " + title);                  // LOGS THE UPDATED NAME OF THE LIST
 
-                boolean listNameAlreadyUpdated = (curUser.getList(listId).getListName()).equals(title);
+                listNameAlreadyUpdated = (curUser.getList(listId).getListName()).equals(title);
 
                 Log.d(TAG, "List name already updated: " + listNameAlreadyUpdated);  // LOGS IF THE LIST NAME IS ALREADY UPDATED IN LISTS-ARRAY
 
                 if (!listNameAlreadyUpdated) {                              // LIST NAME IS NOT YET UPDATED IN USER LISTS-ARRAY
 
-                    curUser.getList(listId).setListName(title);             // ADDS DATABASE LIST NAME TO USER LISTS-ARRAY LIST NAME
+                    curUser.getList(listId).setListName(title);             // CHANGES DATABASE LIST NAME IN USER LISTS-ARRAY LIST NAME
                 }
             }
 
@@ -96,7 +169,7 @@ public class FireBaseDataRetrieve extends Service {
 
                 Log.d(TAG, "Deleted List Name: " + title);                  // LOGS THE NAME OF THE DELETED LIST
 
-                boolean listNotAlreadyDeleted = curUser.getList(listId) != null;
+                listNotAlreadyDeleted = curUser.getList(listId) != null;
 
                 Log.d(TAG, "List is already deleted: " + !listNotAlreadyDeleted);  // LOGS IF THE LIST IS ALREADY DELETED FROM LISTS-ARRAY
 
@@ -116,6 +189,7 @@ public class FireBaseDataRetrieve extends Service {
             }
         });
 
+        //           R E T R I E V E S     T A S K S
         Firebase mRefTasks = new Firebase("https://doneaau.firebaseio.com/tasks/");
 
         mRefTasks.addChildEventListener(new ChildEventListener() {          // Retrieves task data as they appear in the database
@@ -131,7 +205,7 @@ public class FireBaseDataRetrieve extends Service {
 
                     Log.d(TAG, "Task Name: " + task.getTaskName());         // LOGS THE NAME OF THE TASK
 
-                    boolean taskAlreadyAdded = arrayListForTask.getTask(task.getTaskId()) != null;
+                    taskAlreadyAdded = arrayListForTask.getTask(task.getTaskId()) != null;
 
                     Log.d(TAG, "Task already added: " + taskAlreadyAdded);  // LOGS IF THE TASK IS ALREADY ADDED TO TASKS-ARRAY
 
@@ -155,9 +229,6 @@ public class FireBaseDataRetrieve extends Service {
                                 userTask.setReminderDate(format2.parse(task.getReminderDate()));
                             } catch (ParseException e) {
                             }
-                        }
-                        if (task.getNotes() != null) {
-                                userTask.addNote(task.getNotes());
                         }
                         userTask.setCompleted(task.isCompleted());
                         userTask.setVerified(task.isVerified());
@@ -188,13 +259,15 @@ public class FireBaseDataRetrieve extends Service {
                 Log.d(TAG, "Updated Completion: " + completed);
                 Log.d(TAG, "Updated Verification: " + verified);
 
-                boolean taskNameAlreadyUpdated = (curUser.getList(listId).getTask(taskId).getTaskName()).equals(title);
-                boolean dueDateAlreadyUpdated = (format2.format(curUser.getList(listId).getTask(taskId).getDueDate())).equals(dueDate);
-                boolean reminderDateAlreadyUpdated = (format2.format(curUser.getList(listId).getTask(taskId).getReminderDate())).equals(reminderDate);
+                taskNameAlreadyUpdated = (curUser.getList(listId).getTask(taskId).getTaskName()).equals(title);
+                if (curUser.getList(listId).getTask(taskId).getDueDate() == null) dueDateAlreadyUpdated = false;
+                else dueDateAlreadyUpdated = (format2.format(curUser.getList(listId).getTask(taskId).getDueDate())).equals(dueDate);
+                if (curUser.getList(listId).getTask(taskId).getReminderDate() == null) reminderDateAlreadyUpdated = false;
+                else reminderDateAlreadyUpdated = (format2.format(curUser.getList(listId).getTask(taskId).getReminderDate())).equals(reminderDate);
                 //boolean notesAlreadyUpdated = (curUser.getList(listId).getTask(taskId).getNotes()).equals(notes);
                 //boolean photosAlreadyUpdated = (curUser.getList(listId).getTask(taskId).getPhoto()).equals(photos);
-                boolean completionAlreadyUpdated = (curUser.getList(listId).getTask(taskId).isCompleted()) == (completed);
-                boolean verificationAlreadyUpdated = (curUser.getList(listId).getTask(taskId).isVerified()) == (verified);
+                completionAlreadyUpdated = (curUser.getList(listId).getTask(taskId).isCompleted()) == (completed);
+                verificationAlreadyUpdated = (curUser.getList(listId).getTask(taskId).isVerified()) == (verified);
 
                 Log.d(TAG, "Task name already updated: " + taskNameAlreadyUpdated); // LOGS IF THE TASK DATA ARE ALREADY UPDATED IN TASKS-ARRAY
                 Log.d(TAG, "Due Date already updated: " + dueDateAlreadyUpdated);
@@ -245,7 +318,7 @@ public class FireBaseDataRetrieve extends Service {
 
                 Log.d(TAG, "Deleted Task Name: " + title);                  // LOGS THE NAME OF THE DELETED TASK
 
-                boolean taskNotAlreadyDeleted = curUser.getList(listId) != null;
+                taskNotAlreadyDeleted = curUser.getList(listId) != null;
 
                 Log.d(TAG, "Task is already deleted: " + !taskNotAlreadyDeleted);  // LOGS IF THE TASK IS ALREADY DELETED FROM LISTS-ARRAY
 
@@ -264,59 +337,7 @@ public class FireBaseDataRetrieve extends Service {
                 System.out.println("The read failed: " + firebaseError.getMessage());
             }
         });
-        Firebase mRefPhotos = new Firebase("https://doneaau.firebaseio.com/photos/");
-
-        mRefPhotos.addChildEventListener(new ChildEventListener() {          // Retrieves user-list data as they appear in the database
-
-            @Override
-            public void onChildAdded(DataSnapshot snapshot, String previousChildKey) { // Retrieves new/old lists for the user
-                boolean taskExists = false;
-
-                for (List list:curUser.getUserLists()) {
-                    for (Task task:list.getListTasks()){
-                        if(task.getTaskId().equals(snapshot.getKey()) ){
-                            taskExists = true;
-                            int counter = 1;
-                            for (int i = 1; i<=snapshot.getChildrenCount(); i++){
-                                if (snapshot.hasChild(String.valueOf(i))){
-                                    String temp = snapshot.child(String.valueOf(i)).getValue().toString();
-                                    task.setPhotoString(temp);
-                                }
-
-                            }
-
-                            break;
-                        }
-                    }
-                }
-                System.out.println(snapshot);
-
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) { // Retrieves updated list data for the user
-
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {         // Retrieves deleted lists for the user
-
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-                System.out.println("The read failed: " + firebaseError.getMessage());
-            }
-        });
         return super.onStartCommand(intent, flags, startId);
-
-
     }
 
     @Override

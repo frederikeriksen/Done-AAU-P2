@@ -1,4 +1,4 @@
-package com.bignerdranch.android.done.UserData;
+package com.bignerdranch.android.done.AppData;
 
 import java.util.ArrayList;
 
@@ -20,10 +20,6 @@ public class List {
     }
 
     public List() {
-    }
-
-    public ArrayList<Task> getListTasks() {                                 // get all List Tasks
-        return mListTasks;
     }
 
     public Task getTask(String id) {                                          // get a List Task by ID
@@ -66,6 +62,10 @@ public class List {
 
     public void removeListUser(String id) {
         mListUsers.remove(id);
+    }
+
+    public ArrayList<Task> getListTasks() {                                 // get all List Tasks
+        return mListTasks;
     }
 
     public void addListTask(Task task) {

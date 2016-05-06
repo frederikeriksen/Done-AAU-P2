@@ -1,4 +1,4 @@
-package com.bignerdranch.android.done.UserData;
+package com.bignerdranch.android.done.AppData;
 
 import java.util.ArrayList;
 
@@ -24,10 +24,6 @@ public class User {
         }
         return sUser;
     }
-
-    public ArrayList<List> getUserLists() {                         // get all User Lists
-        return mUserLists;
-    }        // get all User-Lists
 
     public List getList(String id) {                                    // get a User-List by ID
         for (List l : mUserLists) {
@@ -68,6 +64,10 @@ public class User {
     public void setEmail(String email) {
         mEmail = email;
     }
+
+    public ArrayList<List> getUserLists() {                         // get all User Lists
+        return mUserLists;
+    }        // get all User-Lists
 
     public void addUserList(List list) {
         sUser.mUserLists.add(list);

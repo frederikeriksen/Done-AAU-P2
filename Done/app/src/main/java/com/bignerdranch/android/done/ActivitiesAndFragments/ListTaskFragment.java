@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;                 // from support library
 import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.LinearLayoutManager;   // from support library
 import android.support.v7.widget.RecyclerView;          // from support library
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -19,11 +20,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.bignerdranch.android.done.PopUps.DeleteTaskPickerFragment;
 import com.bignerdranch.android.done.R;
-import com.bignerdranch.android.done.UserData.Task;
+import com.bignerdranch.android.done.AppData.Task;
 import com.bignerdranch.android.done.PopUps.NewTaskTitlePickerFragment;
-import com.bignerdranch.android.done.UserData.List;
+import com.bignerdranch.android.done.AppData.List;
 import com.bignerdranch.android.done.DataBaseAndLogIn.DataBaseTasks;
-import com.bignerdranch.android.done.UserData.User;
+import com.bignerdranch.android.done.AppData.User;
 import com.firebase.client.Firebase;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -161,7 +162,8 @@ public class ListTaskFragment extends Fragment{
     private class TaskHolder extends RecyclerView.ViewHolder { // viewholder class
         // holds reference to the entire view passed to super(view)
         private TextView mTitleTextView;
-        private TextView mDateTextView;
+        private TextView mCreatedDateTextView;
+        private TextView mDueDateTextView;
         private CheckBox mCompletedCheckBox;
         private Button mEditButton;
         private Button mDeleteButton;
@@ -170,7 +172,8 @@ public class ListTaskFragment extends Fragment{
         public TaskHolder(View itemView) {     // constructor - stashes the views
             super(itemView);
             mTitleTextView = (TextView) itemView.findViewById(R.id.list_item_task_title_text_view);
-            mDateTextView = (TextView) itemView.findViewById(R.id.list_item_task_created_date_text_view);
+            mCreatedDateTextView = (TextView) itemView.findViewById(R.id.list_item_task_created_date_text_view);
+            mDueDateTextView = (TextView) itemView.findViewById(R.id.due_date_list_view_date);
             mCompletedCheckBox = (CheckBox) itemView.findViewById(R.id.task_completed_check_box);
             mEditButton = (Button) itemView.findViewById(R.id.edit_task_button);
             mDeleteButton = (Button) itemView.findViewById(R.id.delete_task_button);
@@ -179,7 +182,10 @@ public class ListTaskFragment extends Fragment{
         public void bindTask(Task task) {
             mTask = task;
             mTitleTextView.setText(mTask.getTaskName());
-            mDateTextView.setText(format.format(mTask.getCreatedDate()));
+            mCreatedDateTextView.setText(format2.format(mTask.getCreatedDate()));
+            Log.d(TAG, "Created date: " + mTask.getCreatedDate()+ " DueDate: " + mTask.getDueDate());
+            if (mTask.getDueDate() == null) mDueDateTextView.setText("Not Set");
+            else mDueDateTextView.setText(format2.format(mTask.getDueDate()));
             mCompletedCheckBox.setChecked(mTask.isCompleted());
             mEditButton.setOnClickListener(new View.OnClickListener() {
                 @Override

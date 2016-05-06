@@ -7,8 +7,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="@color/textColor"
-        android:textSize= "16sp"
-        android:text="REMINDER DATE"
+        android:textSize= "20sp"
+        android:text="Reminder Date"
         android:gravity="center_horizontal"/>
 
     <Button android:id="@+id/reminder_date"
@@ -28,14 +28,16 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="24dp"
         android:layout_marginTop="30dp"
-        android:textColor="@color/textColor"
-        android:text="Date: "/>
+        android:textColor="@color/mainBlueColor"
+        android:layout_alignBottom="@id/reminder_date"
+        android:text="DATE: "/>
 
     <TextView
         android:id="@+id/task_reminder_date_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
+        android:layout_alignBottom="@id/reminder_date"
         android:layout_toRightOf="@id/task_reminder_date"/>
 
     <View

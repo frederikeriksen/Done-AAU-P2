@@ -7,8 +7,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="@color/textColor"
-        android:textSize= "16sp"
-        android:text="HIDDEN FROM"
+        android:textSize= "20sp"
+        android:text="Hidden From"
         android:gravity="center_horizontal"/>
 
     <Button android:id="@+id/hidden_from"
@@ -16,8 +16,8 @@
             android:layout_height="wrap_content"
             android:background="@drawable/button"
             style="?android:attr/buttonStyleSmall"
-            android:drawableRight="@drawable/ic_edit"
-            android:drawableEnd="@drawable/ic_edit"
+            android:drawableRight="@drawable/ic_add"
+            android:drawableEnd="@drawable/ic_add"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:layout_margin="3dp"/>
@@ -28,14 +28,16 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="24dp"
         android:layout_marginTop="30dp"
-        android:textColor="@color/textColor"
-        android:text="Name: "/>
+        android:textColor="@color/mainBlueColor"
+        android:layout_alignBottom="@id/hidden_from"
+        android:text="NAME: "/>
 
     <TextView
         android:id="@+id/hidden_from_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
+        android:layout_alignBottom="@id/hidden_from"
         android:layout_toRightOf="@id/hidden_from_text"/>
 
     <View

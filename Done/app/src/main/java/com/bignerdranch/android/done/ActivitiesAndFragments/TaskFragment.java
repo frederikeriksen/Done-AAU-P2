@@ -3,28 +3,21 @@ package com.bignerdranch.android.done.ActivitiesAndFragments;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;                 // from support library
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Base64;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,14 +29,13 @@ import com.bignerdranch.android.done.PopUps.HidingTaskPickerFragment;
 import com.bignerdranch.android.done.PopUps.NotesPickerFragment;
 import com.bignerdranch.android.done.PopUps.ReminderDatePickerFragment;
 import com.bignerdranch.android.done.R;
-import com.bignerdranch.android.done.UserData.List;
-import com.bignerdranch.android.done.UserData.Task;
-import com.bignerdranch.android.done.UserData.User;
+import com.bignerdranch.android.done.AppData.List;
+import com.bignerdranch.android.done.AppData.Task;
+import com.bignerdranch.android.done.AppData.User;
 import com.firebase.client.Firebase;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 
 /**
@@ -84,8 +76,7 @@ public class TaskFragment extends Fragment{
     private ImageView mImageView;
     private CheckBox mCompletedCheckBox;
     private CheckBox mVerifiedCheckBox;
-    private FragmentManager manager = getFragmentManager();
-    private int counter = 1;
+    private Date date;
 
     // Fragment-Arguments work just like Intent-Extras for an Activity
     public static TaskFragment newInstance(String taskId, String listId) {   // we use a method to create Fragment instead of using Constructor
@@ -104,8 +95,6 @@ public class TaskFragment extends Fragment{
         String listId = (String) getArguments().getSerializable(ARG_LIST_ID);   //  RETRIEVES List ID from Intent
         mTask = User.get().getList(listId).getTask(taskId);    // using a get method to get Task from ids
         mList = User.get().getList(listId);
-
-
     }
 
     @Override
@@ -123,34 +112,8 @@ public class TaskFragment extends Fragment{
         View view = inflater.inflate(R.layout.fragment_task, container, false);
         mTaskRecyclerView = (RecyclerView)view.findViewById(R.id.single_task_recycler_view);
         mTaskRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));    // handles the
-
         updateUI();     // sets up the UI                     // positioning of items and defines the scrolling behaviour
-
-
         return view;
-    }
-
-    private void updatePhotos() {
-
-        ImageView img1 = (ImageView) getView().findViewById(R.id.show_photo1);
-        ImageView img2 = (ImageView) getView().findViewById(R.id.show_photo2);
-        ImageView img3 = (ImageView) getView().findViewById(R.id.show_photo3);
-        ImageView img4 = (ImageView) getView().findViewById(R.id.show_photo4);
-        ArrayList<String> photoList = mTask.getPhotoArr();
-        if (photoList.size() == 0){
-            return;
-        }
-        if (photoList.size() >= 1)
-        {img1.setImageBitmap(getPhoto(photoList.get(0)));}
-        if(photoList.size() >= 2){
-            img2.setImageBitmap(getPhoto(photoList.get(1)));
-        }
-        if(photoList.size() >= 3){
-            img3.setImageBitmap(getPhoto(photoList.get(2)));
-        }
-        if(photoList.size() >= 4){
-            img4.setImageBitmap(getPhoto(photoList.get(3)));
-        }
     }
 
     @Override
@@ -158,11 +121,6 @@ public class TaskFragment extends Fragment{
         if (resultCode != Activity.RESULT_OK) {
             return;
         }
-        updatePhotos();
-
-
-
-
         switch (requestCode) {
             case 0: {      // ADDING DUE DATE
 
@@ -190,7 +148,6 @@ public class TaskFragment extends Fragment{
                 String note = (String) data.getSerializableExtra(NotesPickerFragment.EXTRA_TITLE);
                 mTask.addNote(note);
                 mNotesText.setText(mNotesText.getText() + "\n" + User.get().getUserName() + ": "+note);
-                mDataBaseTaskRef.child(mTask.getTaskId()).child("notes").setValue(note);
                 break;
             }
             case 3:{      // ADDING PHOTOS
@@ -198,33 +155,8 @@ public class TaskFragment extends Fragment{
                     mImageBitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), Uri.parse(mCurrentPhotoPath));
                     // mImageView.setImageBitmap(mImageBitmap);
                     mTask.setPhoto(mImageBitmap);
-                    //ImageView imgShow = (ImageView) getView().findViewById(R.id.show_photo);
-                    /*<ImageView
-        android:id="@+id/show_photo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/add_photo"
-        android:layout_marginLeft="20dp"
-        android:adjustViewBounds="true"
-        android:maxHeight="80dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="10dp"/>
-        */
-                    Firebase mDataBasePhotoRef = new Firebase("https://doneaau.firebaseio.com/photos/");
-                    mDataBasePhotoRef.child(mTask.getTaskId()).child(String.valueOf(counter)).setValue(mTask.getPhotoString());
-                    //imgShow.setImageBitmap(mTask.getPhoto());
-                    /*ImageView img1 = (ImageView) getView().findViewById(R.id.show_photo1);
-                    ImageView img2 = (ImageView) getView().findViewById(R.id.show_photo2);
-                    ImageView img3 = (ImageView) getView().findViewById(R.id.show_photo3);
-                    ImageView img4 = (ImageView) getView().findViewById(R.id.show_photo4);
-                    ArrayList<String> photoList = mTask.getPhotoArr();
-                    img1.setImageBitmap(getPhoto(photoList.get(0)));
-                    img2.setImageBitmap(getPhoto(photoList.get(1)));
-                    img3.setImageBitmap(getPhoto(photoList.get(2)));
-                    img4.setImageBitmap(getPhoto(photoList.get(3)));*/
-                    counter++;
-
-
+                    ImageView imgShow = (ImageView) getView().findViewById(R.id.show_photo);
+                    imgShow.setImageBitmap(mTask.getPhoto());
 
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -242,8 +174,6 @@ public class TaskFragment extends Fragment{
                 String taskTitle = (String) data.getSerializableExtra(EditTaskTitlePickerFragment.EXTRA_TASK_TITLE);
 
                 mDataBaseTaskRef.child(mTask.getTaskId()).child("taskName").setValue(taskTitle); // updating DB task name
-
-
                                                                     // updating Array Task Name is already done
                 updateUI();                                         // and updating UI
                 ((TaskActivity)getActivity()).getSupportActionBar().setTitle("Task: "+ mTask.getTaskName());
@@ -252,21 +182,21 @@ public class TaskFragment extends Fragment{
         }
     }
 
-    public Bitmap getPhoto(String photoStr) {
-        byte[] imageAsBytes = Base64.decode(photoStr.getBytes(), Base64.DEFAULT);
-        Bitmap photo = BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length);
-
-        return photo;
-    }
     private void updateTaskTitle() {mTaskTitleTextView.setText(mTask.getTaskName());}
 
     private void updateAssignees() {mAssignedToTextView.setText("");}
 
     private void updateViewers() {mHiddenFromTextView.setText("");}
 
-    private void updateDueDate() {mDueDateTextView.setText(format2.format(mTask.getDueDate()));}
+    private void updateDueDate() {
+        if (mTask.getDueDate() == null) mDueDateTextView.setText("Not Set");
+        else mDueDateTextView.setText(format2.format(mTask.getDueDate()));
+    }
 
-    private void updateReminderDate() { mReminderDateTextView.setText(format2.format(mTask.getReminderDate())); }
+    private void updateReminderDate() {
+        if (mTask.getReminderDate() == null) mReminderDateTextView.setText("Not Set");
+        else mReminderDateTextView.setText(format2.format(mTask.getReminderDate()));
+    }
 
     private void updateUI() {
         if (mAdapter == null) {
@@ -317,6 +247,7 @@ public class TaskFragment extends Fragment{
         }
         public void bindTask() {
             updateAssignees();
+            mAssignedToTextView.setText("None");
             mAssignedTo.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -350,6 +281,7 @@ public class TaskFragment extends Fragment{
         }
         public void bindTask() {
             updateViewers();
+            mHiddenFromTextView.setText("None");
             mHiddenFrom.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -387,7 +319,9 @@ public class TaskFragment extends Fragment{
                 @Override
                 public void onClick(View v) {
                     FragmentManager manager = getFragmentManager();
-                    DueDatePickerFragment dialog = DueDatePickerFragment.newInstance(mTask.getDueDate()); //shows due date
+                    if (mTask.getDueDate() == null) date = mTask.getCreatedDate();
+                    else date = mTask.getDueDate();
+                    DueDatePickerFragment dialog = DueDatePickerFragment.newInstance(date); //shows due date
                     dialog.setTargetFragment(TaskFragment.this, 0);
                     dialog.show(manager, DIALOG_DATE1);
                 }
@@ -415,7 +349,9 @@ public class TaskFragment extends Fragment{
                 @Override
                 public void onClick(View v) {
                     FragmentManager manager = getFragmentManager();
-                    ReminderDatePickerFragment dialog = ReminderDatePickerFragment.newInstance(mTask.getReminderDate()); //shows reminder date
+                    if (mTask.getReminderDate() == null) date = mTask.getCreatedDate();
+                    else date = mTask.getReminderDate();
+                    ReminderDatePickerFragment dialog = ReminderDatePickerFragment.newInstance(date); //shows reminder date
                     dialog.setTargetFragment(TaskFragment.this, 1);
                     dialog.show(manager, DIALOG_DATE2);
                 }

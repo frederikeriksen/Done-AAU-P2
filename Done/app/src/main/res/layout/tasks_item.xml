@@ -23,22 +23,6 @@
         android:layout_marginRight="60dp"
         android:layout_marginTop="7dp"/>
 
-    <TextView
-        android:id="@+id/list_item_task_created_date"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/task_completed_check_box"
-        android:layout_marginTop="74dp"
-        android:textColor="@color/textColor"
-        android:text="Created on: "/>
-
-    <TextView
-        android:id="@+id/list_item_task_created_date_text_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="74dp"
-        android:layout_toRightOf="@id/list_item_task_created_date"/>
-
     <Button android:id="@+id/delete_task_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -60,6 +44,40 @@
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:layout_margin="3dp"/>
+
+    <TextView
+        android:id="@+id/due_date_list_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/mainBlueColor"
+        android:text="DUE DATE: "
+        android:layout_alignBottom="@id/edit_task_button"
+        android:layout_alignLeft="@id/list_item_task_title_text_view"
+        android:layout_alignStart="@id/list_item_task_title_text_view"/>
+
+    <TextView
+        android:id="@+id/due_date_list_view_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/due_date_list_view"
+        android:layout_toRightOf="@id/due_date_list_view"/>
+
+    <TextView
+        android:id="@+id/list_item_task_created_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/mainBlueColor"
+        android:text="CREATED ON: "
+        android:layout_above="@id/due_date_list_view"
+        android:layout_alignLeft="@id/list_item_task_title_text_view"
+        android:layout_alignStart="@id/list_item_task_title_text_view"/>
+
+    <TextView
+        android:id="@+id/list_item_task_created_date_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/due_date_list_view"
+        android:layout_toRightOf="@id/list_item_task_created_date"/>
 
     <View
         android:layout_width="match_parent"

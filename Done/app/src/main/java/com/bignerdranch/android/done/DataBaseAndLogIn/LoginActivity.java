@@ -8,8 +8,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import com.bignerdranch.android.done.AppData.RegisteredUsers;
 import com.bignerdranch.android.done.R;
-import com.bignerdranch.android.done.UserData.User;
+import com.bignerdranch.android.done.AppData.User;
 import com.bignerdranch.android.done.ActivitiesAndFragments.UserActivity;
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
@@ -26,7 +28,6 @@ public class LoginActivity extends AppCompatActivity {
     EditText mEditTextEmail;
     EditText mEditTextPassword;
     Button mButtonLogin;
-    ArrayList<DataBaseUsers> userList = new ArrayList<DataBaseUsers>();
     private static final String TAG = "DoneActivity";
 
     @Override
@@ -49,8 +50,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onChildAdded(DataSnapshot snapshot, String previousChildKey) {
                 DataBaseUsers user = snapshot.getValue(DataBaseUsers.class);
-                //System.out.println(user.getEmail());
-                userList.add(user);
+                RegisteredUsers.get().getUsers().add(user);                 // add registered user in Reg.Users list
             }
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
@@ -81,8 +81,8 @@ public class LoginActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "This password is too long", Toast.LENGTH_LONG).show();
                 } else {
                     boolean userExists = false;
-                    for (int i = 0; i < userList.size(); i++) {
-                        DataBaseUsers currUser = userList.get(i);
+                    for (int i = 0; i < RegisteredUsers.get().getUsers().size(); i++) {
+                        DataBaseUsers currUser = RegisteredUsers.get().getUsers().get(i);
                         if (emailText.equals(currUser.getEmail()) && passwordText.equals(currUser.getPassword())) { //USER LOGIN SUCCESSFUL
 
                             User.get().getUserLists().clear();                  // Existing User data emptied

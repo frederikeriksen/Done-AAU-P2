@@ -13,7 +13,7 @@ import android.view.View;
 import android.widget.EditText;
 
 import com.bignerdranch.android.done.R;
-import com.bignerdranch.android.done.UserData.User;
+import com.bignerdranch.android.done.AppData.User;
 
 /**
  * Created by michalisgratsias on 30/04/16.

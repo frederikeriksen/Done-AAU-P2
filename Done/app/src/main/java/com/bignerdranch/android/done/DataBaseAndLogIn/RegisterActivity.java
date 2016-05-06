@@ -9,7 +9,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 import com.bignerdranch.android.done.R;
-import com.bignerdranch.android.done.UserData.User;
+import com.bignerdranch.android.done.AppData.User;
 import com.bignerdranch.android.done.ActivitiesAndFragments.UserActivity;
 import com.firebase.client.Firebase;
 import java.util.UUID;

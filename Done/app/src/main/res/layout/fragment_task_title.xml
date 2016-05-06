@@ -7,8 +7,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="@color/textColor"
-        android:textSize= "16sp"
-        android:text="TASK TITLE"
+        android:textSize= "20sp"
+        android:text="Task Title"
         android:gravity="center_horizontal"/>
 
     <Button android:id="@+id/task_title"
@@ -28,15 +28,17 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="24dp"
         android:layout_marginTop="30dp"
-        android:textColor="@color/textColor"
-        android:text="Title: "/>
+        android:textColor="@color/mainBlueColor"
+        android:layout_alignBottom="@id/task_title"
+        android:text="TITLE: "/>
 
     <TextView
         android:id="@+id/title_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
-        android:layout_toRightOf="@id/title_text"/>
+        android:layout_toRightOf="@id/title_text"
+        android:layout_alignBottom="@id/task_title"/>
 
     <View
         android:layout_width="match_parent"

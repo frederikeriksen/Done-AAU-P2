@@ -7,8 +7,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="@color/textColor"
-        android:textSize= "16sp"
-        android:text="DUE DATE"
+        android:textSize= "20sp"
+        android:text="Due Date"
         android:gravity="center_horizontal"/>
 
     <Button android:id="@+id/due_date"
@@ -28,14 +28,16 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="24dp"
         android:layout_marginTop="30dp"
-        android:textColor="@color/textColor"
-        android:text="Date: "/>
+        android:textColor="@color/mainBlueColor"
+        android:layout_alignBottom="@id/due_date"
+        android:text="DATE: "/>
 
     <TextView
         android:id="@+id/task_due_date_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
+        android:layout_alignBottom="@id/due_date"
         android:layout_toRightOf="@id/task_due_date"/>
 
     <View

@@ -8,11 +8,11 @@
     <string name="note_hint">Enter a note.</string>
     <string name="task_label">Tasks:</string>
     <string name="notes_label">Note:</string>
-    <string name="share_label">Share with:</string>
+    <string name="email_hint">Enter an email address</string>
     <string name="users_label">Users:</string>
     <string name="task_name_label">Task Title:</string>
-    <string name="task_completed_label">Is this task Completed?</string>
-    <string name="task_verified_label">Is this task Verified?</string>
+    <string name="task_completed_label">IS THIS TASK COMPLETED?</string>
+    <string name="task_verified_label">IS THIS TASK VERIFIED?</string>
     <string name="list_title_picker_title">Name of New List:</string>
     <string name="edit_list_title_picker_title">Edit Name of List:</string>
     <string name="edit_task_title_picker_title">Edit Name of Task:</string>

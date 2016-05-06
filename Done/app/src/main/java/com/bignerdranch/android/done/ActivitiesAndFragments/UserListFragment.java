@@ -18,17 +18,22 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.bignerdranch.android.done.AppData.RegisteredUsers;
+import com.bignerdranch.android.done.DataBaseAndLogIn.DataBaseUsers;
 import com.bignerdranch.android.done.PopUps.DeleteListPickerFragment;
 import com.bignerdranch.android.done.PopUps.EditListTitlePickerFragment;
 import com.bignerdranch.android.done.R;
 import com.bignerdranch.android.done.PopUps.ShareListPickerFragment;
-import com.bignerdranch.android.done.UserData.Task;
-import com.bignerdranch.android.done.UserData.User;
+import com.bignerdranch.android.done.AppData.Task;
+import com.bignerdranch.android.done.AppData.User;
 import com.bignerdranch.android.done.PopUps.NewListTitlePickerFragment;
-import com.bignerdranch.android.done.UserData.List;
+import com.bignerdranch.android.done.AppData.List;
 import com.bignerdranch.android.done.DataBaseAndLogIn.DataBaseLists;
 import com.firebase.client.Firebase;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -45,6 +50,7 @@ public class UserListFragment extends Fragment {
     private ListAdapter mAdapter;                  // Adapter controls the data to be displayed by RecyclerView
     private List mNewList;
     private DataBaseLists listDBNew;
+    private Firebase mDataBaseListUserRef;
     private Firebase mDataBaseListRef = new Firebase("https://doneaau.firebaseio.com/lists/");
     private Firebase mDataBaseTaskRef = new Firebase("https://doneaau.firebaseio.com/tasks/");
 
@@ -111,8 +117,7 @@ public class UserListFragment extends Fragment {
                 mNewList.setListId(listDBNew.getListId());
                 mNewList.setListName(title);
                 mNewList.setCreatorId(User.get().getUserId());
-                User.get().addUserList(mNewList);
-                Log.d(TAG, " List Created ");
+                User.get().addUserList(mNewList);                   // updating AppBar, below
                 ((UserActivity)getActivity()).getSupportActionBar().setTitle(User.get().getUserName() + " - My " + User.get().getUserLists().size() + " To-Do Lists");
                 updateUI();                                         // and updating UI
                 break;
@@ -127,6 +132,25 @@ public class UserListFragment extends Fragment {
                 break;
             }
             case 7: {       // SHARING LIST
+
+                String email = (String) data.getSerializableExtra(ShareListPickerFragment.EXTRA_EMAIL);
+                String listId = (String) data.getSerializableExtra(EditListTitlePickerFragment.EXTRA_ID);
+
+                Boolean noUser = true;
+                for (DataBaseUsers u: RegisteredUsers.get().getUsers()) {
+                    if (u.getEmail().equals(email)) {
+                        mDataBaseListUserRef = new Firebase("https://doneaau.firebaseio.com/lists/"+ listId +"/shared_users/");
+                        Map<String, Object> listUser = new HashMap<String, Object>();
+                        listUser.put(u.getUserId(), true);
+                        mDataBaseListUserRef.updateChildren(listUser);          // adding user to Database for that List
+
+                        User.get().getList(listId).addListUser(u.getUserId());  // adding user to Array of List Users for that List
+                        updateUI();                                             // and updating UI
+                        noUser = false;
+                        break;
+                    }
+                }
+                if (noUser) Toast.makeText(getContext(), "No Registered user with that Email address exists in the Database", Toast.LENGTH_SHORT).show();
                 break;
             }
             case 8: {       // DELETING LIST AND ITS TASKS
@@ -158,7 +182,8 @@ public class UserListFragment extends Fragment {
     private class ListHolder extends RecyclerView.ViewHolder { // viewholder class
         // holds reference to the entire view passed to super(view)
         private TextView mTitleTextView;
-        private TextView mTaskTextView;
+        private TextView mShareTextView;
+        private TextView mCreatorTextView;
         private Button mEditButton;
         private Button mShareButton;
         private Button mDeleteButton;
@@ -168,7 +193,8 @@ public class UserListFragment extends Fragment {
         public ListHolder(View itemView) {     // constructor - stashes the views
             super(itemView);
             mTitleTextView = (TextView) itemView.findViewById(R.id.list_item_list_title_text_view);
-            mTaskTextView = (TextView) itemView.findViewById(R.id.list_item_task_text_view);
+            mShareTextView = (TextView) itemView.findViewById(R.id.share_list_view_names);
+            mCreatorTextView = (TextView) itemView.findViewById(R.id.creator_list_view_name);
             mTaskButton = (Button) itemView.findViewById(R.id.task_button);
             mEditButton = (Button) itemView.findViewById(R.id.edit_list_button);
             mShareButton = (Button) itemView.findViewById(R.id.share_button);
@@ -178,6 +204,13 @@ public class UserListFragment extends Fragment {
         public void bindList(List list) {                   // list data entered in fragment viewholder
             mList = list;
             mTitleTextView.setText(mList.getListName());
+            mCreatorTextView.setText(RegisteredUsers.get().getUser(mList.getCreatorId()).getUserName());
+            String shares = "";
+            for (String n: mList.getListUsers()) {
+                shares = shares + RegisteredUsers.get().getUser(n).getUserName()+" + ";
+                mShareTextView.setText(shares.substring(0,shares.length()-2));
+            }
+            if (mList.getListUsers().size() == 0) mShareTextView.setText("None");
             mTaskButton.setTextColor(Color.WHITE);
             mTaskButton.setText(""+mList.getListTasks().size());            // updates task count
             mTaskButton.setOnClickListener(new View.OnClickListener() {
@@ -190,7 +223,7 @@ public class UserListFragment extends Fragment {
             mTaskButton.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    Toast.makeText(getContext(), "Create & Edit Tasks", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "View Tasks", Toast.LENGTH_SHORT).show();
                     return true;
                 }
             });
@@ -204,7 +237,7 @@ public class UserListFragment extends Fragment {
                         dialog.show(manager, DIALOG_EDIT_LIST_TITLE);
                     }
                     else {
-                        Toast.makeText(getContext(), "The list title can be edited only by its creator", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "This list title can be edited only by its creator", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
@@ -218,10 +251,15 @@ public class UserListFragment extends Fragment {
             mShareButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    FragmentManager manager = getFragmentManager();
-                    ShareListPickerFragment dialog = new ShareListPickerFragment(); //shares list
-                    dialog.setTargetFragment(UserListFragment.this, 7);
-                    dialog.show(manager, DIALOG_SHARE_LIST);
+                    if (User.get().getUserId().equals(mList.getCreatorId())) {
+                        FragmentManager manager = getFragmentManager();
+                        ShareListPickerFragment dialog = ShareListPickerFragment.newInstance(mList.getListId()); //shares list
+                        dialog.setTargetFragment(UserListFragment.this, 7);
+                        dialog.show(manager, DIALOG_SHARE_LIST);
+                    }
+                    else {
+                        Toast.makeText(getContext(), "This list can be shared only by its creator", Toast.LENGTH_SHORT).show();
+                    }
                 }
             });
             mShareButton.setOnLongClickListener(new View.OnLongClickListener() {
@@ -241,7 +279,7 @@ public class UserListFragment extends Fragment {
                         dialog.show(manager, DIALOG_DELETE_LIST);
                     }
                     else {
-                        Toast.makeText(getContext(), "The list can be deleted only by its creator", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "This list can be deleted only by its creator", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
