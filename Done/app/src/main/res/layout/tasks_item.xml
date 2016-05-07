@@ -67,7 +67,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@color/mainBlueColor"
-        android:text="CREATED ON: "
+        android:text="ASSIGNED TO: "
         android:layout_above="@id/due_date_list_view"
         android:layout_alignLeft="@id/list_item_task_title_text_view"
         android:layout_alignStart="@id/list_item_task_title_text_view"/>
@@ -76,6 +76,7 @@
         android:id="@+id/list_item_task_created_date_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="None"
         android:layout_above="@id/due_date_list_view"
         android:layout_toRightOf="@id/list_item_task_created_date"/>
 

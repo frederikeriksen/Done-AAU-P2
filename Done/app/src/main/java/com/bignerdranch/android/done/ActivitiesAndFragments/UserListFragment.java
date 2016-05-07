@@ -207,7 +207,7 @@ public class UserListFragment extends Fragment {
             mCreatorTextView.setText(RegisteredUsers.get().getUser(mList.getCreatorId()).getUserName());
             String shares = "";
             for (String n: mList.getListUsers()) {
-                shares = shares + RegisteredUsers.get().getUser(n).getUserName()+" + ";
+                shares = shares + RegisteredUsers.get().getUser(n).getUserName()+" & ";
                 mShareTextView.setText(shares.substring(0,shares.length()-2));
             }
             if (mList.getListUsers().size() == 0) mShareTextView.setText("None");

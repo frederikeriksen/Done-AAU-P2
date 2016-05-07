@@ -27,7 +27,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="24dp"
-        android:layout_marginTop="30dp"
         android:textColor="@color/mainBlueColor"
         android:layout_alignBottom="@id/add_note"
         android:text="NOTES:"/>
@@ -38,13 +37,12 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="24dp"
         android:layout_marginRight="24dp"
-        android:layout_marginTop="26dp"
-        android:textSize= "20sp"
-        android:textColor="@color/textColor"/>
+        android:layout_alignTop="@id/notes_text_view"/>
 
     <View
         android:layout_width="match_parent"
         android:layout_below="@+id/notes"
+        android:layout_marginTop="3dp"
         android:layout_height="1dp"
         android:background="@color/mainBlueColor"/>
 

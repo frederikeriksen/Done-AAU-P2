@@ -37,6 +37,8 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by michalisgratsias on 03/04/16.
@@ -53,7 +55,8 @@ public class TaskFragment extends Fragment{
     private static final String DIALOG_ASSIGN_TASK = "AssignTask";
     private static final String DIALOG_HIDE_TASK = "HideTask";
     private Firebase mDataBaseTaskRef = new Firebase("https://doneaau.firebaseio.com/tasks/");
-    SimpleDateFormat format2 = new SimpleDateFormat("EEEE MMM dd, yyyy");
+    private SimpleDateFormat format2 = new SimpleDateFormat("EEEE MMM dd, yyyy");
+    private Firebase mDataBaseNoteRef;
     private Task mTask;
     private List mList;
     private Button mTaskTitle;
@@ -117,7 +120,7 @@ public class TaskFragment extends Fragment{
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {    // Actions happening after a pop-up ends
         if (resultCode != Activity.RESULT_OK) {
             return;
         }
@@ -146,8 +149,18 @@ public class TaskFragment extends Fragment{
             }
             case 2: {      // ADDING NOTES
                 String note = (String) data.getSerializableExtra(NotesPickerFragment.EXTRA_TITLE);
-                mTask.addNote(note);
-                mNotesText.setText(mNotesText.getText() + "\n" + User.get().getUserName() + ": "+note);
+
+                mDataBaseNoteRef = new Firebase("https://doneaau.firebaseio.com/tasks/"+ mTask.getTaskId() +"/notes/");
+                Map<String, Object> dbnote = new HashMap<String, Object>();
+                dbnote.put("user", User.get().getUserName());
+                dbnote.put("note", note);
+                mDataBaseNoteRef.push().setValue(dbnote);           // adding note to Database for that Task
+
+                mTask.addNote(User.get().getUserName()+": "+ note); // adding note to Notes array
+
+                String notes = "";
+                for (String n: mTask.getNotes()) {notes += "\n" +n;}
+                mNotesText.setText(notes);                          // updating notes view (UI)
                 break;
             }
             case 3:{      // ADDING PHOTOS
@@ -372,9 +385,11 @@ public class TaskFragment extends Fragment{
             super(itemView);
             mAddNote = (Button) itemView.findViewById(R.id.add_note);
             mNotesText = (TextView) itemView.findViewById(R.id.notes);
-            for (String n: mTask.getNotes()) mNotesText.setText(mNotesText.getText()+"\n"+ User.get().getUserName() + ": "+n);
         }
         public void bindTask() {
+            String notes = "";
+            for (String n: mTask.getNotes()) {notes += "\n" +n;}
+            mNotesText.setText(notes);                          // updating notes view (UI)
             mAddNote.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
