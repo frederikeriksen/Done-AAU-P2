@@ -39,6 +39,10 @@ public class FireBaseDataRetrieve extends Service {
     boolean completionAlreadyUpdated;
     boolean verificationAlreadyUpdated;
     boolean taskNotAlreadyDeleted;
+    boolean userNameAlreadyUpdated;
+    boolean passwordAlreadyUpdated;
+    boolean emailAlreadyUpdated;
+    boolean userNotAlreadyDeleted;
 
     public FireBaseDataRetrieve() {
     }
@@ -63,7 +67,7 @@ public class FireBaseDataRetrieve extends Service {
             public void onChildAdded(DataSnapshot snapshot, String previousChildKey) { // Retrieves new/old registered users for the user
 
                 DataBaseUsers user = snapshot.getValue(DataBaseUsers.class);
-
+                User.get().setPhoto(user.getPhoto());
                 Log.d(TAG, "User Name: " + user.getUserName());          // LOGS THE NAME OF THE USER
 
                 userAlreadyAdded = RegisteredUsers.get().getUser(user.getUserId()) != null;
@@ -76,16 +80,61 @@ public class FireBaseDataRetrieve extends Service {
                     currUser.setUserName(user.getUserName());
                     currUser.setPassword(user.getPassword());
                     currUser.setEmail(user.getEmail());
+                    currUser.setPhoto(user.getPhoto());
+                    User.get().setPhoto(user.getPhoto());
                     RegisteredUsers.get().getUsers().add(currUser);     // ADDS DATABASE USER TO REG.USERS-ARRAY
+
                 }
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) { // Retrieves updated data for the user
+                String userName = (String) dataSnapshot.child("userName").getValue();
+                String password = (String) dataSnapshot.child("password").getValue();
+                String email = (String) dataSnapshot.child("email").getValue();
+
+                Log.d(TAG, "Updated User Name: " + userName);
+                Log.d(TAG, "Updated Password: " + password);
+                Log.d(TAG, "Updated Email: " + email);
+
+                userNameAlreadyUpdated = (curUser.getUserName()).equals(userName);
+                passwordAlreadyUpdated = (curUser.getPassword()).equals(password);
+                emailAlreadyUpdated = (curUser.getUserName()).equals(email);
+
+                Log.d(TAG, "User Name already updated: " + userNameAlreadyUpdated);
+                Log.d(TAG, "Password already updated: " + passwordAlreadyUpdated);
+                Log.d(TAG, "Email already updated: " + emailAlreadyUpdated);
+
+                if (!userNameAlreadyUpdated) {                                      // USER DATA ARE NOT YET UPDATED IN USER ARRAY
+
+                    curUser.setUserName(userName);                                  // ADDS DATABASE USER DATA TO USER ARRAY
+                }
+                if (!passwordAlreadyUpdated) {                                      // USER DATA ARE NOT YET UPDATED IN USER ARRAY
+
+                    curUser.setPassword(password);                                  // ADDS DATABASE USER DATA TO USER ARRAY
+                }
+                if (!emailAlreadyUpdated) {                                      // USER DATA ARE NOT YET UPDATED IN USER ARRAY
+
+                    curUser.setEmail(email);                                  // ADDS DATABASE USER DATA TO USER ARRAY
+                }
+
             }
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {         // Retrieves deleted users
+                String userId = (String) dataSnapshot.child("userId").getValue();
+                String userName = (String) dataSnapshot.child("userName").getValue();
+
+                Log.d(TAG, "Deleted User Name: " + userName);                  // LOGS THE NAME OF THE DELETED USER
+
+                userNotAlreadyDeleted = RegisteredUsers.get().getUser(userId) != null;
+
+                Log.d(TAG, "User is already deleted: " + !userNotAlreadyDeleted);  // LOGS IF THE USER IS ALREADY DELETED FROM REGISTERED-USERS
+
+                if (userNotAlreadyDeleted) {                                // USER IS NOT YET DELETED IN REGISTERED USERS
+
+                    RegisteredUsers.get().getUsers().remove(RegisteredUsers.get().getUser(userId)); // DELETES DATABASE USER FROM REGISTERED USERS
+                }
             }
 
             @Override
@@ -248,10 +297,18 @@ public class FireBaseDataRetrieve extends Service {
                             DataBaseNotes note = noteSnapshot.getValue(DataBaseNotes.class);
                             userTask.getNotes().add(note.getUser() + ": " + note.getNote());
                         }
+                        for (DataSnapshot noteSnapshot : snapshot.child("photos/").getChildren()) {
+                            String photo = noteSnapshot.getValue(String.class);
+                            userTask.addPhoto(photo);
+                        }
                         userTask.setCompleted(completed);
                         userTask.setVerified(verified);
 
                         arrayListForTask.addListTask(userTask);             // ADDS DATABASE TASK TO USER-LIST TASKS-ARRAY
+                    }
+                    if (curUser.getList(listId).getTask(taskId).getNonViewers() != null &&
+                            curUser.getList(listId).getTask(taskId).getNonViewers().contains(curUser.getUserId())) {
+                        curUser.getList(listId).getListTasks().remove(curUser.getList(listId).getTask(taskId));
                     }
                 }
             }
@@ -276,7 +333,7 @@ public class FireBaseDataRetrieve extends Service {
                     User.get().getList(listId).getTask(taskId).getNonViewers().add(userSnapshot.getKey());   // CHANGES HIDDEN USERS IN TASK
                 }
                 curUser.getList(listId).getTask(taskId).getNotes().clear();
-                for (DataSnapshot noteSnapshot : dataSnapshot.child("notes/").getChildren()) {
+                for (DataSnapshot noteSnapshot : dataSnapshot.child("notes/").getChildren()) { // CHANGES NOTES IN TASK
                     DataBaseNotes note = noteSnapshot.getValue(DataBaseNotes.class);
                     curUser.getList(listId).getTask(taskId).getNotes().add(note.getUser() + ": " + note.getNote());
                 }
@@ -323,6 +380,9 @@ public class FireBaseDataRetrieve extends Service {
 
                     curUser.getList(listId).getTask(taskId).setVerified(verified);
                 }
+                if (curUser.getList(listId).getTask(taskId).getNonViewers().contains(curUser.getUserId())) {
+                    curUser.getList(listId).removeListTask(curUser.getList(listId).getTask(taskId));
+                }
             }
 
             @Override
@@ -358,6 +418,8 @@ public class FireBaseDataRetrieve extends Service {
 
     @Override
     public void onDestroy() {
+        stopService(new Intent(this, FireBaseDataRetrieve.class));
         super.onDestroy();
+
     }
 }

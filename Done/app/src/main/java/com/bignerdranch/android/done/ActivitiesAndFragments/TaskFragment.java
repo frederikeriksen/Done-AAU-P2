@@ -2,7 +2,9 @@ package com.bignerdranch.android.done.ActivitiesAndFragments;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -11,6 +13,7 @@ import android.support.v4.app.Fragment;                 // from support library
 import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,6 +36,8 @@ import com.bignerdranch.android.done.AppData.List;
 import com.bignerdranch.android.done.AppData.Task;
 import com.bignerdranch.android.done.AppData.User;
 import com.firebase.client.Firebase;
+
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -121,7 +126,48 @@ public class TaskFragment extends Fragment{
         mTaskRecyclerView = (RecyclerView)view.findViewById(R.id.single_task_recycler_view);
         mTaskRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));    // handles the
         updateUI();     // sets up the UI                     // positioning of items and defines the scrolling behaviour
+
         return view;
+    }
+    private String bitmapToString(Bitmap photo){
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        photo.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+        byte[] byteArray = byteArrayOutputStream .toByteArray();
+        String encoded = Base64.encodeToString(byteArray, Base64.DEFAULT);
+        return encoded;
+    }
+    public Bitmap getPhoto(String photoStr) {
+        byte[] imageAsBytes = Base64.decode(photoStr.getBytes(), Base64.DEFAULT);
+        Bitmap photo = BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length);
+
+        return photo;
+    }
+
+    private void updatePhotos() {
+
+        ImageView img1 = (ImageView) getView().findViewById(R.id.show_photo1);
+        ImageView img2 = (ImageView) getView().findViewById(R.id.show_photo2);
+        ImageView img3 = (ImageView) getView().findViewById(R.id.show_photo3);
+        ImageView img4 = (ImageView) getView().findViewById(R.id.show_photo4);
+        ArrayList<String> photoList = mTask.getPhotos();
+
+        if(img1 == null && img2 == null){
+            return;
+        }
+        if (photoList.size() == 0){
+            return;
+        }
+        if (photoList.size() >= 1)
+        {img1.setImageBitmap(getPhoto(photoList.get(0)));}
+        if(photoList.size() >= 2){
+            img2.setImageBitmap(getPhoto(photoList.get(1)));
+        }
+        if(photoList.size() >= 3){
+            img3.setImageBitmap(getPhoto(photoList.get(2)));
+        }
+        if(photoList.size() >= 4){
+            img4.setImageBitmap(getPhoto(photoList.get(3)));
+        }
     }
 
     @Override
@@ -169,16 +215,37 @@ public class TaskFragment extends Fragment{
                 break;
             }
             case 3:{      // ADDING PHOTOS
-                try {
-                    mImageBitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), Uri.parse(mCurrentPhotoPath));
-                    // mImageView.setImageBitmap(mImageBitmap);
-                    mTask.setPhoto(mImageBitmap);
-                    ImageView imgShow = (ImageView) getView().findViewById(R.id.show_photo);
-                    imgShow.setImageBitmap(mTask.getPhoto());
+                    if (requestCode == 3 && null != data) {
+                        // Get the Image from data
+                        String imgDecodableString = "";
+                        Uri selectedImage = data.getData();
+                        String[] filePathColumn = { MediaStore.Images.Media.DATA };
 
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                        // Get the cursor
+                        Cursor cursor = getContext().getContentResolver().query(selectedImage,
+                                filePathColumn, null, null, null);
+                        // Move to first row
+                        cursor.moveToFirst();
+
+                        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                        imgDecodableString = cursor.getString(columnIndex);
+                        cursor.close();
+                        Toast.makeText(getContext(), "Image picked", Toast.LENGTH_LONG).show();
+                        //ImageView imgView = (ImageView) getView().findViewById(R.id.show_photo);
+                        // Set the Image in ImageView after decoding the String
+                        //imgView.setImageBitmap(BitmapFactory.decodeFile(imgDecodableString));
+                        String photoStr = bitmapToString(BitmapFactory.decodeFile(imgDecodableString));
+                        System.out.println(photoStr);
+                        mTask.addPhoto(photoStr);
+                        Firebase mDataBasePhotoRef = new Firebase("https://doneaau.firebaseio.com/tasks/"+ mTask.getTaskId() +"/photos/");
+                        mDataBasePhotoRef.push().setValue(photoStr);           // adding photo to Database for that Task
+                        updatePhotos();
+
+                    } else {
+                        Toast.makeText(getContext(), "You haven't picked Image", Toast.LENGTH_LONG).show();
+
+                    }
+                updateUI();
                 break;
             }
             case 4: {      // ASSIGNING TASKS
@@ -239,10 +306,12 @@ public class TaskFragment extends Fragment{
     }
 
     private void updateUI() {
+
         if (mAdapter == null) {
             mAdapter = new TaskAdapter(9);              // passing 9 fragments to the Recycle-View Adapter
             mTaskRecyclerView.setAdapter(mAdapter);}
         else {mAdapter.notifyDataSetChanged();}
+
     }
 
     private class TaskHolder0 extends RecyclerView.ViewHolder { // EDIT TASK TITLE
@@ -452,15 +521,18 @@ public class TaskFragment extends Fragment{
 
     private class TaskHolder6 extends RecyclerView.ViewHolder {  // ADDING PHOTOS
                                                 // viewholder class holds reference to the entire view passed
+
         public TaskHolder6(View itemView) {     // constructor - stashes the views
             super(itemView);
             mAddPhoto = (Button) itemView.findViewById(R.id.add_photo);
         }
         public void bindTask() {
+            updatePhotos();
             mAddPhoto.setEnabled(true);
             mAddPhoto.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    /*
                     Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                     if (cameraIntent.resolveActivity(getActivity().getPackageManager()) != null) {
                         // Create the File where the photo should go
@@ -477,6 +549,14 @@ public class TaskFragment extends Fragment{
                             startActivityForResult(cameraIntent, 3);
                         }
                     }
+                    */
+                    Firebase mDataBasePhotoRef = new Firebase("https://doneaau.firebaseio.com/tasks/"+ mTask.getTaskId() +"/photos/");
+                    //if (mDataBasePhotoRef.ge){}
+                    // Create intent to Open Image applications like Gallery, Google Photos
+                    Intent galleryIntent = new Intent(Intent.ACTION_PICK,
+                            android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+// Start the Intent
+                    startActivityForResult(galleryIntent, 3);
                 }
             });
             mAddPhoto.setOnLongClickListener(new View.OnLongClickListener() {
@@ -486,6 +566,7 @@ public class TaskFragment extends Fragment{
                     return true;
                 }
             });
+
         }
     }
     //this is for the photo

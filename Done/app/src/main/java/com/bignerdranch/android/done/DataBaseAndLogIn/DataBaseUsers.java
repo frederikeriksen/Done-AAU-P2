@@ -10,6 +10,7 @@ public class DataBaseUsers {
     private String userName;
     private String password;
     private String email;
+    private String photo;
 
     public DataBaseUsers(){
         // empty default constructor, necessary for Firebase
@@ -45,6 +46,14 @@ public class DataBaseUsers {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(String photo) {
+        this.photo = photo;
     }
 }
 

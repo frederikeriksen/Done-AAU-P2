@@ -1,5 +1,9 @@
 package com.bignerdranch.android.done.AppData;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
+
 import java.util.ArrayList;
 
 /**
@@ -13,6 +17,7 @@ public class User {
     private String mEmail;
     private ArrayList<List> mUserLists;
     private static User sUser;
+    private String mPhoto;
 
     public User() {
         mUserLists = new ArrayList<List>();
@@ -75,5 +80,18 @@ public class User {
 
     public void removeUserList(List list) {
         sUser.mUserLists.remove(list);
+    }
+
+    public void setPhoto(String photo){ mPhoto = photo;}
+
+    public String getPhoto (){return mPhoto;}
+
+    public Bitmap getPhotoBitMap(){
+        if(mPhoto != null) {
+            byte[] imageAsBytes = Base64.decode(mPhoto.getBytes(), Base64.DEFAULT);
+            Bitmap photo = BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length);
+            return photo;
+        }
+        return null;
     }
 }

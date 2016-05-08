@@ -2,7 +2,9 @@ package com.bignerdranch.android.done.ActivitiesAndFragments;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -11,6 +13,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -33,6 +36,8 @@ import com.bignerdranch.android.done.PopUps.EditUserNamePickerFragment;
 import com.bignerdranch.android.done.PopUps.EditUserPasswordPickerFragment;
 import com.bignerdranch.android.done.R;
 import com.firebase.client.Firebase;
+
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -59,6 +64,7 @@ public class SettingsFragment extends Fragment {
     private TextView mUserPasswordTextView;
     private Button mUserPhoto;
     public static Bitmap mImageBitmap;
+
     private String mCurrentPhotoPath;
     private ImageView mImageView;
     private RecyclerView mUserRecyclerView;         // RecyclerView creates only enough views to fill the screen and scrolls them
@@ -141,13 +147,33 @@ public class SettingsFragment extends Fragment {
             }
             case 16:{      // ADDING USER PHOTOS
                 try {
-                    mImageBitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), Uri.parse(mCurrentPhotoPath));
-                    mImageView.setImageBitmap(mImageBitmap);
-                    //User.get().setPhoto(mImageBitmap);
-                    ImageView imgShow = (ImageView) getView().findViewById(R.id.show_photo);
-                    //imgShow.setImageBitmap(User.get().getPhoto());
+                    String imgDecodableString = "";
+                    Uri selectedImage = data.getData();
+                    String[] filePathColumn = { MediaStore.Images.Media.DATA };
 
-                } catch (IOException e) {
+                    // Get the cursor
+                    Cursor cursor = getContext().getContentResolver().query(selectedImage,
+                            filePathColumn, null, null, null);
+                    // Move to first row
+                    cursor.moveToFirst();
+
+                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                    imgDecodableString = cursor.getString(columnIndex);
+                    cursor.close();
+                    Toast.makeText(getContext(), "Image picked", Toast.LENGTH_LONG).show();
+
+                    //imgView.setImageBitmap(BitmapFactory.decodeFile(imgDecodableString));
+                    String photoStr = bitmapToString(BitmapFactory.decodeFile(imgDecodableString));
+                    User.get().setPhoto(photoStr);
+                    Firebase mDataBasePhotoRef = new Firebase("https://doneaau.firebaseio.com/users/"+ User.get().getUserId() +"/photo/");
+                    mDataBasePhotoRef.setValue(photoStr);           // adding photo to Database for that Task
+
+                    ImageView imgView = (ImageView) getView().findViewById(R.id.photo_imageView);
+                    byte[] imageAsBytes = Base64.decode(photoStr.getBytes(), Base64.DEFAULT);
+                    Bitmap photo = BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length);
+                    imgView.setImageBitmap(photo);
+
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
                 break;
@@ -176,6 +202,13 @@ public class SettingsFragment extends Fragment {
                 break;
             }
         }
+    }
+    private String bitmapToString(Bitmap photo){
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        photo.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+        byte[] byteArray = byteArrayOutputStream .toByteArray();
+        String encoded = Base64.encodeToString(byteArray, Base64.DEFAULT);
+        return encoded;
     }
 
     private void updateUI() {
@@ -294,8 +327,9 @@ public class SettingsFragment extends Fragment {
                         }
                         // Continue only if the File was successfully created
                         if (photoFile != null) {
-                            cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
-                            startActivityForResult(cameraIntent, 16);
+                            Intent galleryIntent = new Intent(Intent.ACTION_PICK,
+                                    android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                            startActivityForResult(galleryIntent, 16);
                         }
                     }
                 }

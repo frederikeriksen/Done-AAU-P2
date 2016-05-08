@@ -1,6 +1,11 @@
 package com.bignerdranch.android.done.DataBaseAndLogIn;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -71,15 +76,19 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String emailText = mEditTextEmail.getText().toString();
                 String passwordText = mEditTextPassword.getText().toString();
+
                 if (emailText.isEmpty() || passwordText.isEmpty()) {
                     Toast.makeText(getApplicationContext(), "There can't be any empty fields!", Toast.LENGTH_LONG).show();
+                } else if(!isConnectedToInternet()){
+                    Toast.makeText(getApplicationContext(),"Please connect to a network!",Toast.LENGTH_LONG).show();
                 } else if (!isValidEmail(emailText)) {
                     Toast.makeText(getApplicationContext(), "The email is not valid!", Toast.LENGTH_LONG).show();
                 } else if (passwordText.length() < 6) {
                     Toast.makeText(getApplicationContext(), "This password is too short", Toast.LENGTH_LONG).show();
                 } else if (passwordText.length() > 12) {
                     Toast.makeText(getApplicationContext(), "This password is too long", Toast.LENGTH_LONG).show();
-                } else {
+                }
+                else {
                     boolean userExists = false;
                     for (int i = 0; i < RegisteredUsers.get().getUsers().size(); i++) {
                         DataBaseUsers currUser = RegisteredUsers.get().getUsers().get(i);
@@ -108,5 +117,57 @@ public class LoginActivity extends AppCompatActivity {
 
     public final static boolean isValidEmail(CharSequence target) {
         return !TextUtils.isEmpty(target) && android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches();
+    }
+    public boolean isConnectedToInternet(){
+        ConnectivityManager connectivityManager = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Network[] networks = connectivityManager.getAllNetworks();
+            NetworkInfo networkInfo;
+            for (Network mNetwork : networks) {
+                networkInfo = connectivityManager.getNetworkInfo(mNetwork);
+                if (networkInfo.getState().equals(NetworkInfo.State.CONNECTED)) {
+                    //Toast.makeText(getApplicationContext(),"Internet Connected",Toast.LENGTH_LONG).show();
+                    return true;
+                }
+            }
+        }else {
+            if (connectivityManager != null) {
+                //noinspection deprecation
+                NetworkInfo[] info = connectivityManager.getAllNetworkInfo();
+                if (info != null) {
+                    for (NetworkInfo anInfo : info) {
+                        if (anInfo.getState() == NetworkInfo.State.CONNECTED) {
+                            //LogUtils.d("Network",
+                                   // "NETWORKNAME: " + anInfo.getTypeName());
+                            //Toast.makeText(getApplicationContext(),"Internet Connected",Toast.LENGTH_LONG).show();
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        //Toast.makeText(getApplicationContext(),"Internet NOT Connected",Toast.LENGTH_LONG).show();
+        return false;
+        /*
+        //instantiate an object
+        ConnectivityManager cm=(ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        //get all networks information
+        NetworkInfo networkInfo[]=cm.getAllNetworkInfo();
+
+        int i;
+
+        //checking internet connectivity
+        for(i=0; i <= networkInfo.length;++i){
+            if(networkInfo[i].getState()== NetworkInfo.State.CONNECTED){
+                Toast.makeText(getApplicationContext(),"Internet Connected",Toast.LENGTH_LONG).show();
+                break;
+            }
+        }
+
+        if(i==networkInfo.length){
+            Toast.makeText(getApplicationContext(),"Internet Not Connected",Toast.LENGTH_LONG).show();
+        }
+        */
     }
 }

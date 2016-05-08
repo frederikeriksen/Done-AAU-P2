@@ -13,6 +13,7 @@ public class RegisteredUsers {
     private String userName;
     private String password;
     private String email;
+    private String photo;
     private ArrayList<DataBaseUsers> mRUsers;
     private static RegisteredUsers sRUsers;
 
@@ -70,4 +71,13 @@ public class RegisteredUsers {
     public void setEmail(String email) {
         this.email = email;
     }
+
+    public String getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(String email) {
+        this.photo = photo;
+    }
+
 }
