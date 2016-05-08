@@ -10,7 +10,14 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.bignerdranch.android.done.AppData.User;
 import com.bignerdranch.android.done.R;
 import com.bignerdranch.android.done.DataBaseAndLogIn.LogoPageActivity;
 
@@ -20,6 +27,10 @@ import com.bignerdranch.android.done.DataBaseAndLogIn.LogoPageActivity;
 public abstract class ActivityParent extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     protected abstract Fragment createFragment();               // abstract method not implemented here
+    private static final String TAG = "DoneActivity";
+    protected ImageView mUserPhoto;
+    protected TextView mUserName;
+    protected TextView mUserEmail;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -37,6 +48,14 @@ public abstract class ActivityParent extends AppCompatActivity implements Naviga
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        View header = LayoutInflater.from(this).inflate(R.layout.nav_header_main, null);
+        navigationView.addHeaderView(header);
+
+        mUserPhoto = (ImageView) header.findViewById(R.id.User_Photo);
+        mUserName = (TextView) header.findViewById(R.id.User_Name_Title);
+        mUserEmail = (TextView) header.findViewById(R.id.User_Email_Title);
+        mUserName.setText(User.get().getUserName());
+        mUserEmail.setText(User.get().getEmail());
 
         FragmentManager fm = getSupportFragmentManager();       // FM responsible for managing Fragments and adding their Views
         Fragment fragment = fm.findFragmentById(R.id.fragment_container);   // using Support Library - give frmt to mgr.
