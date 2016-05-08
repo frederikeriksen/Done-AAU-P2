@@ -89,6 +89,10 @@ public class FireBaseDataRetrieve extends Service {
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) { // Retrieves updated data for the user
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/master
                 String userName = (String) dataSnapshot.child("userName").getValue();
                 String password = (String) dataSnapshot.child("password").getValue();
                 String email = (String) dataSnapshot.child("email").getValue();
@@ -117,11 +121,18 @@ public class FireBaseDataRetrieve extends Service {
 
                     curUser.setEmail(email);                                  // ADDS DATABASE USER DATA TO USER ARRAY
                 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/master
             }
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {         // Retrieves deleted users
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/master
                 String userId = (String) dataSnapshot.child("userId").getValue();
                 String userName = (String) dataSnapshot.child("userName").getValue();
 
@@ -265,6 +276,7 @@ public class FireBaseDataRetrieve extends Service {
                     Log.d(TAG, "Task already added: " + taskAlreadyAdded);  // LOGS IF THE TASK IS ALREADY ADDED TO TASKS-ARRAY
 
                     if (!taskAlreadyAdded) {                                // TASK IS NOT YET ADDED TO USER-LIST TASKS-ARRAY
+
                         Task userTask = new Task(listId);
                         userTask.setTaskId(taskId);
                         userTask.setListId(listId);
@@ -333,7 +345,11 @@ public class FireBaseDataRetrieve extends Service {
                     User.get().getList(listId).getTask(taskId).getNonViewers().add(userSnapshot.getKey());   // CHANGES HIDDEN USERS IN TASK
                 }
                 curUser.getList(listId).getTask(taskId).getNotes().clear();
+<<<<<<< HEAD
                 for (DataSnapshot noteSnapshot : dataSnapshot.child("notes/").getChildren()) { // CHANGES NOTES IN TASK
+=======
+                for (DataSnapshot noteSnapshot : dataSnapshot.child("notes/").getChildren()) {              // CHANGES NOTES IN TASK
+>>>>>>> origin/master
                     DataBaseNotes note = noteSnapshot.getValue(DataBaseNotes.class);
                     curUser.getList(listId).getTask(taskId).getNotes().add(note.getUser() + ": " + note.getNote());
                 }
