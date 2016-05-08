@@ -15,9 +15,9 @@ public class User {
     private String mUserName;
     private String mPassword;
     private String mEmail;
+    private String mPhoto;
     private ArrayList<List> mUserLists;
     private static User sUser;
-    private String mPhoto;
 
     public User() {
         mUserLists = new ArrayList<List>();

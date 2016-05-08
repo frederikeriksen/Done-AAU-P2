@@ -17,25 +17,24 @@ public class Task {
     private Date mCreatedDate;
     private String mTaskName;
     private ArrayList<String> mAssignees;
-    private ArrayList<String> mNonViewers = new ArrayList<>();
+    private ArrayList<String> mNonViewers;
     private Date mDueDate;
     private Date mReminderDate;
     private ArrayList<String> mNotes;
     private String mPhoto;
-    private ArrayList<String> mPhotos = new ArrayList<>();
+    private ArrayList<String> mPhotos;
     //idea is to save photo as a string here and in the getter and setter return it as bitmap;
-    //private ArrayList<Image> mPhotos;
     private boolean mCompleted;
     private boolean mVerified;
 
-    public Task(String listId) {                  // constructor with Task ID, List ID
+    public Task(String listId) {                  // constructor with List ID
         mListId = listId;
         mAssignees = new ArrayList<>();
         mNonViewers= new ArrayList<>();
         mDueDate = mCreatedDate;
         mReminderDate = mCreatedDate;
         mNotes = new ArrayList<>();
-        //mPhotos = new ArrayList<>();
+        mPhotos = new ArrayList<>();
         mCompleted = false;
         mVerified = false;
     }
@@ -124,7 +123,6 @@ public class Task {
     public Bitmap getPhoto() {
         byte[] imageAsBytes = Base64.decode(mPhoto.getBytes(), Base64.DEFAULT);
         Bitmap photo = BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length);
-
         return photo;
     }
 
@@ -139,6 +137,7 @@ public class Task {
     public void addPhoto(String photo){
         mPhotos.add(photo);
     }
+
     public ArrayList<String> getPhotos(){
         return mPhotos;
     }

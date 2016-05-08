@@ -35,4 +35,12 @@ public class TaskActivity extends ActivityParent {
         String listId = (String) getIntent().getSerializableExtra(EXTRA_LIST_ID);   //  RETRIEVES List ID from Intent
         getSupportActionBar().setTitle("Task: " + User.get().getList(listId).getTask(taskId).getTaskName());
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        String taskId = (String) getIntent().getSerializableExtra(EXTRA_TASK_ID);   //  RETRIEVES Task ID from Intent
+        String listId = (String) getIntent().getSerializableExtra(EXTRA_LIST_ID);   //  RETRIEVES List ID from Intent
+        getSupportActionBar().setTitle("Task: " + User.get().getList(listId).getTask(taskId).getTaskName());
+    }
 }

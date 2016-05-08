@@ -7,8 +7,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="@color/textColor"
-        android:textSize= "16sp"
-        android:text="PHOTOS"
+        android:textSize= "20sp"
+        android:text="Photos"
         android:gravity="center_horizontal"/>
 
     <Button android:id="@+id/add_photo"
@@ -16,8 +16,8 @@
         android:layout_height="wrap_content"
         android:background="@drawable/button"
         style="?android:attr/buttonStyleSmall"
-        android:drawableRight="@drawable/ic_edit"
-        android:drawableEnd="@drawable/ic_edit"
+        android:drawableRight="@drawable/ic_add"
+        android:drawableEnd="@drawable/ic_add"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_margin="3dp"/>
@@ -28,50 +28,61 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="24dp"
         android:layout_marginTop="30dp"
-        android:textColor="@color/textColor"
-        android:text="Photos:"/>
-
+        android:textColor="@color/mainBlueColor"
+        android:layout_alignBottom="@id/add_photo"
+        android:text="PHOTOS: "/>
 
     <GridLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:columnCount="2"
         android:rowCount="2"
         android:id="@+id/gridLayoutPhotos"
         android:layout_below="@+id/photos_text_view"
         android:layout_marginLeft="30dp">
+
         <ImageView
             android:id="@+id/show_photo1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
+            android:layout_marginLeft="50dp"
             android:adjustViewBounds="true"
             android:maxHeight="60dp"
-            android:layout_marginBottom="10dp"/>
+            android:layout_marginBottom="10dp"
+            android:maxWidth="100dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="10dp"/>
+
         <ImageView
             android:id="@+id/show_photo2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
             android:adjustViewBounds="true"
             android:maxHeight="60dp"
-            android:layout_marginBottom="10dp"/>
+            android:layout_marginBottom="10dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="10dp"/>
+
         <ImageView
             android:id="@+id/show_photo3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
+            android:layout_marginLeft="50dp"
             android:adjustViewBounds="true"
             android:maxHeight="60dp"
-            android:layout_marginBottom="10dp"/>
+            android:layout_marginBottom="10dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="10dp"/>
+
         <ImageView
             android:id="@+id/show_photo4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
             android:adjustViewBounds="true"
             android:maxHeight="60dp"
-            android:layout_marginBottom="10dp"/>
+            android:layout_marginBottom="10dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="10dp"/>
     </GridLayout>
 
     <View
@@ -79,6 +90,5 @@
         android:layout_height="1dp"
         android:layout_below="@id/gridLayoutPhotos"
         android:background="@color/mainBlueColor"/>
-
 
 </RelativeLayout>

@@ -51,7 +51,7 @@ public class LoginActivity extends AppCompatActivity {
 
         mRef = new Firebase("https://doneaau.firebaseio.com/users/");
         mRef.addChildEventListener(new ChildEventListener() {
-            // Retrieve new posts as they are added to the database
+            // Retrieve all users as they are in the database
             @Override
             public void onChildAdded(DataSnapshot snapshot, String previousChildKey) {
                 DataBaseUsers user = snapshot.getValue(DataBaseUsers.class);
@@ -92,13 +92,14 @@ public class LoginActivity extends AppCompatActivity {
                     boolean userExists = false;
                     for (int i = 0; i < RegisteredUsers.get().getUsers().size(); i++) {
                         DataBaseUsers currUser = RegisteredUsers.get().getUsers().get(i);
-                        if (emailText.equals(currUser.getEmail()) && passwordText.equals(currUser.getPassword())) { //USER LOGIN SUCCESSFUL
-
+                        if (emailText.equals(currUser.getEmail()) && passwordText.equals(currUser.getPassword())) {
+                                                                                // USER LOGIN SUCCESSFUL
                             User.get().getUserLists().clear();                  // Existing User data emptied
                             User.get().setUserId(currUser.getUserId());         // User initialized from database user-data
                             User.get().setUserName(currUser.getUserName());
                             User.get().setEmail(currUser.getEmail());
                             User.get().setPassword(currUser.getPassword());
+                            User.get().setPhoto(currUser.getPhoto());
 
                             userExists = true;
                             Toast.makeText(getApplicationContext(), "Login successful", Toast.LENGTH_SHORT).show();
@@ -137,37 +138,13 @@ public class LoginActivity extends AppCompatActivity {
                 if (info != null) {
                     for (NetworkInfo anInfo : info) {
                         if (anInfo.getState() == NetworkInfo.State.CONNECTED) {
-                            //LogUtils.d("Network",
-                                   // "NETWORKNAME: " + anInfo.getTypeName());
-                            //Toast.makeText(getApplicationContext(),"Internet Connected",Toast.LENGTH_LONG).show();
                             return true;
                         }
                     }
                 }
             }
         }
-        //Toast.makeText(getApplicationContext(),"Internet NOT Connected",Toast.LENGTH_LONG).show();
         return false;
-        /*
-        //instantiate an object
-        ConnectivityManager cm=(ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
 
-        //get all networks information
-        NetworkInfo networkInfo[]=cm.getAllNetworkInfo();
-
-        int i;
-
-        //checking internet connectivity
-        for(i=0; i <= networkInfo.length;++i){
-            if(networkInfo[i].getState()== NetworkInfo.State.CONNECTED){
-                Toast.makeText(getApplicationContext(),"Internet Connected",Toast.LENGTH_LONG).show();
-                break;
-            }
-        }
-
-        if(i==networkInfo.length){
-            Toast.makeText(getApplicationContext(),"Internet Not Connected",Toast.LENGTH_LONG).show();
-        }
-        */
     }
 }

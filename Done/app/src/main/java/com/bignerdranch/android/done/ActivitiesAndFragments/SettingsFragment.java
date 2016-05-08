@@ -62,7 +62,8 @@ public class SettingsFragment extends Fragment {
     private TextView mUserEmailTextView;
     private Button mUserPassword;
     private TextView mUserPasswordTextView;
-    private Button mUserPhoto;
+    private Button mUserPhotoButton;
+    private ImageView mUserPhotoView;
     public static Bitmap mImageBitmap;
 
     private String mCurrentPhotoPath;
@@ -162,16 +163,14 @@ public class SettingsFragment extends Fragment {
                     cursor.close();
                     Toast.makeText(getContext(), "Image picked", Toast.LENGTH_LONG).show();
 
-                    //imgView.setImageBitmap(BitmapFactory.decodeFile(imgDecodableString));
                     String photoStr = bitmapToString(BitmapFactory.decodeFile(imgDecodableString));
-                    User.get().setPhoto(photoStr);
+                    User.get().setPhoto(photoStr);                  // adding photo to User data
                     Firebase mDataBasePhotoRef = new Firebase("https://doneaau.firebaseio.com/users/"+ User.get().getUserId() +"/photo/");
-                    mDataBasePhotoRef.setValue(photoStr);           // adding photo to Database for that Task
+                    mDataBasePhotoRef.setValue(photoStr);           // adding photo to Database for that User
 
-                    ImageView imgView = (ImageView) getView().findViewById(R.id.photo_imageView);
                     byte[] imageAsBytes = Base64.decode(photoStr.getBytes(), Base64.DEFAULT);
                     Bitmap photo = BitmapFactory.decodeByteArray(imageAsBytes, 0, imageAsBytes.length);
-                    imgView.setImageBitmap(photo);
+                    mUserPhotoView.setImageBitmap(photo);           // updates UI
 
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -308,11 +307,13 @@ public class SettingsFragment extends Fragment {
         // viewholder class holds reference to the entire view passed
         public UserHolder3(View itemView) {     // constructor - stashes the views
             super(itemView);
-            mUserPhoto = (Button) itemView.findViewById(R.id.photo);
+            mUserPhotoButton = (Button) itemView.findViewById(R.id.photo);
+            mUserPhotoView = (ImageView) itemView.findViewById(R.id.photo_imageView);
         }
         public void bindTask() {
-            mUserPhoto.setEnabled(true);
-            mUserPhoto.setOnClickListener(new View.OnClickListener() {
+            mUserPhotoView.setImageBitmap(User.get().getPhotoBitMap());
+            mUserPhotoButton.setEnabled(true);
+            mUserPhotoButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -334,7 +335,7 @@ public class SettingsFragment extends Fragment {
                     }
                 }
             });
-            mUserPhoto.setOnLongClickListener(new View.OnLongClickListener() {
+            mUserPhotoButton.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
                     Toast.makeText(getContext(), "Add Photos", Toast.LENGTH_SHORT).show();

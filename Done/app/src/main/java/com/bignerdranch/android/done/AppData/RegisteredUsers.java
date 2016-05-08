@@ -76,8 +76,5 @@ public class RegisteredUsers {
         return photo;
     }
 
-    public void setPhoto(String email) {
-        this.photo = photo;
-    }
-
+    public void setPhoto(String photo) {this.photo = photo;}
 }

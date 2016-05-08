@@ -48,7 +48,6 @@ public class ListTaskFragment extends Fragment{
     private Firebase mDataBaseTaskRef = new Firebase("https://doneaau.firebaseio.com/tasks/");
     private List mList;
     private Task mNewTask;
-    private Task mTask;
     private DataBaseTasks taskNew;
 
     public static ListTaskFragment newInstance(String listId) {   // we use a method to create Fragment instead of using Constructor
@@ -118,15 +117,12 @@ public class ListTaskFragment extends Fragment{
                 if (title == null) break;                             // does not create empty task
 
                 taskNew = new DataBaseTasks();                      // saving new task data to database
-                Date created = new Date();
+                Date created = new Date();                          // created-date initialized
                 taskNew.setTaskId(UUID.randomUUID().toString());
                 taskNew.setListId(mList.getListId());
                 taskNew.setTaskName(title);
                 taskNew.setCreatedDate(format.format(created));
                 mDataBaseTaskRef.child(taskNew.getTaskId()).setValue(taskNew);
-                //Map<String, Object> taskId = new HashMap<String, Object>();
-                //taskId.put(taskNew.getTaskId(), true);
-                //new Firebase("https://doneaau.firebaseio.com/lists/"+taskNew.getListId()+"/tasks/").updateChildren(taskId);
 
                 mNewTask = new Task(mList.getListId());             // adding new Task to Array
                 mNewTask.setTaskId(taskNew.getTaskId());
@@ -182,7 +178,7 @@ public class ListTaskFragment extends Fragment{
         }
 
         public void bindTask(Task task) {
-            mTask = task;
+            final Task mTask = task;
             mTitleTextView.setText(mTask.getTaskName());
             String assignees = "";
             for (String n: mTask.getAssignees()) {

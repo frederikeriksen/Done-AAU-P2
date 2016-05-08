@@ -29,6 +29,11 @@ public class FireBaseDataRetrieve extends Service {
     ArrayList<String> users = new ArrayList<String>();
     User curUser;
     boolean userAlreadyAdded;
+    boolean userNameAlreadyUpdated;
+    boolean passwordAlreadyUpdated;
+    boolean emailAlreadyUpdated;
+    boolean photoAlreadyUpdated;
+    boolean userNotAlreadyDeleted;
     boolean listAlreadyAdded;
     boolean listNameAlreadyUpdated;
     boolean listNotAlreadyDeleted;
@@ -39,10 +44,6 @@ public class FireBaseDataRetrieve extends Service {
     boolean completionAlreadyUpdated;
     boolean verificationAlreadyUpdated;
     boolean taskNotAlreadyDeleted;
-    boolean userNameAlreadyUpdated;
-    boolean passwordAlreadyUpdated;
-    boolean emailAlreadyUpdated;
-    boolean userNotAlreadyDeleted;
 
     public FireBaseDataRetrieve() {
     }
@@ -67,7 +68,7 @@ public class FireBaseDataRetrieve extends Service {
             public void onChildAdded(DataSnapshot snapshot, String previousChildKey) { // Retrieves new/old registered users for the user
 
                 DataBaseUsers user = snapshot.getValue(DataBaseUsers.class);
-                User.get().setPhoto(user.getPhoto());
+
                 Log.d(TAG, "User Name: " + user.getUserName());          // LOGS THE NAME OF THE USER
 
                 userAlreadyAdded = RegisteredUsers.get().getUser(user.getUserId()) != null;
@@ -81,33 +82,32 @@ public class FireBaseDataRetrieve extends Service {
                     currUser.setPassword(user.getPassword());
                     currUser.setEmail(user.getEmail());
                     currUser.setPhoto(user.getPhoto());
-                    User.get().setPhoto(user.getPhoto());
                     RegisteredUsers.get().getUsers().add(currUser);     // ADDS DATABASE USER TO REG.USERS-ARRAY
-
                 }
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) { // Retrieves updated data for the user
-<<<<<<< HEAD
-=======
 
->>>>>>> origin/master
                 String userName = (String) dataSnapshot.child("userName").getValue();
                 String password = (String) dataSnapshot.child("password").getValue();
                 String email = (String) dataSnapshot.child("email").getValue();
+                String photo = (String) dataSnapshot.child("photo").getValue();
 
                 Log.d(TAG, "Updated User Name: " + userName);
                 Log.d(TAG, "Updated Password: " + password);
                 Log.d(TAG, "Updated Email: " + email);
+                Log.d(TAG, "Updated Photo: " + photo);
 
                 userNameAlreadyUpdated = (curUser.getUserName()).equals(userName);
                 passwordAlreadyUpdated = (curUser.getPassword()).equals(password);
-                emailAlreadyUpdated = (curUser.getUserName()).equals(email);
+                emailAlreadyUpdated = (curUser.getEmail()).equals(email);
+                photoAlreadyUpdated = (curUser.getPhoto()).equals(photo);
 
                 Log.d(TAG, "User Name already updated: " + userNameAlreadyUpdated);
                 Log.d(TAG, "Password already updated: " + passwordAlreadyUpdated);
                 Log.d(TAG, "Email already updated: " + emailAlreadyUpdated);
+                Log.d(TAG, "Photo already updated: " + photoAlreadyUpdated);
 
                 if (!userNameAlreadyUpdated) {                                      // USER DATA ARE NOT YET UPDATED IN USER ARRAY
 
@@ -121,18 +121,15 @@ public class FireBaseDataRetrieve extends Service {
 
                     curUser.setEmail(email);                                  // ADDS DATABASE USER DATA TO USER ARRAY
                 }
-<<<<<<< HEAD
+                if (!photoAlreadyUpdated) {                                      // USER DATA ARE NOT YET UPDATED IN USER ARRAY
 
-=======
->>>>>>> origin/master
+                    curUser.setPhoto(photo);                                  // ADDS DATABASE USER DATA TO USER ARRAY
+                }
             }
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {         // Retrieves deleted users
-<<<<<<< HEAD
-=======
 
->>>>>>> origin/master
                 String userId = (String) dataSnapshot.child("userId").getValue();
                 String userName = (String) dataSnapshot.child("userName").getValue();
 
@@ -345,13 +342,14 @@ public class FireBaseDataRetrieve extends Service {
                     User.get().getList(listId).getTask(taskId).getNonViewers().add(userSnapshot.getKey());   // CHANGES HIDDEN USERS IN TASK
                 }
                 curUser.getList(listId).getTask(taskId).getNotes().clear();
-<<<<<<< HEAD
+
                 for (DataSnapshot noteSnapshot : dataSnapshot.child("notes/").getChildren()) { // CHANGES NOTES IN TASK
-=======
-                for (DataSnapshot noteSnapshot : dataSnapshot.child("notes/").getChildren()) {              // CHANGES NOTES IN TASK
->>>>>>> origin/master
                     DataBaseNotes note = noteSnapshot.getValue(DataBaseNotes.class);
                     curUser.getList(listId).getTask(taskId).getNotes().add(note.getUser() + ": " + note.getNote());
+                }
+                for (DataSnapshot noteSnapshot : dataSnapshot.child("photos/").getChildren()) {
+                    String photo = noteSnapshot.getValue(String.class);
+                    curUser.getList(listId).getTask(taskId).addPhoto(photo);
                 }
 
                 Log.d(TAG, "Updated Task Name: " + title);                  // LOGS THE UPDATED DATA OF THE TASK
@@ -396,7 +394,7 @@ public class FireBaseDataRetrieve extends Service {
 
                     curUser.getList(listId).getTask(taskId).setVerified(verified);
                 }
-                if (curUser.getList(listId).getTask(taskId).getNonViewers().contains(curUser.getUserId())) {
+                if (curUser.getList(listId).getTask(taskId).getNonViewers().contains(curUser.getUserId())) {    // Remove Task if Hidden for user
                     curUser.getList(listId).removeListTask(curUser.getList(listId).getTask(taskId));
                 }
             }

@@ -56,10 +56,7 @@ public abstract class ActivityParent extends AppCompatActivity implements Naviga
         mUserEmail = (TextView) header.findViewById(R.id.User_Email_Title);
         mUserName.setText(User.get().getUserName());
         mUserEmail.setText(User.get().getEmail());
-<<<<<<< HEAD
         mUserPhoto.setImageBitmap(User.get().getPhotoBitMap());
-=======
->>>>>>> origin/master
 
         FragmentManager fm = getSupportFragmentManager();       // FM responsible for managing Fragments and adding their Views
         Fragment fragment = fm.findFragmentById(R.id.fragment_container);   // using Support Library - give frmt to mgr.
@@ -68,6 +65,14 @@ public abstract class ActivityParent extends AppCompatActivity implements Naviga
             fm.beginTransaction()                               // create a new Fragment Object hosted by the Activity
                     .add(R.id.fragment_container, fragment)     // include an ADD operation on it (identified by resource ID of container view)
                     .commit(); }                                // and commit the fragment transaction to the list of the mgr
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mUserName.setText(User.get().getUserName());
+        mUserEmail.setText(User.get().getEmail());
+        mUserPhoto.setImageBitmap(User.get().getPhotoBitMap());
     }
 
     @Override

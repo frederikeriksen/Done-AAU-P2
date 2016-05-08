@@ -80,7 +80,10 @@ public class TaskFragment extends Fragment{
     private Button mAddNote;
     private TextView mNotesText;
     private Button mAddPhoto;
-    private ImageView mPhoto;
+    private ImageView mPhoto1;
+    private ImageView mPhoto2;
+    private ImageView mPhoto3;
+    private ImageView mPhoto4;
     static final int REQUEST_IMAGE_CAPTURE = 1;
     public static Bitmap mImageBitmap;
     private String mCurrentPhotoPath;
@@ -145,28 +148,15 @@ public class TaskFragment extends Fragment{
 
     private void updatePhotos() {
 
-        ImageView img1 = (ImageView) getView().findViewById(R.id.show_photo1);
-        ImageView img2 = (ImageView) getView().findViewById(R.id.show_photo2);
-        ImageView img3 = (ImageView) getView().findViewById(R.id.show_photo3);
-        ImageView img4 = (ImageView) getView().findViewById(R.id.show_photo4);
-        ArrayList<String> photoList = mTask.getPhotos();
-
-        if(img1 == null && img2 == null){
-            return;
-        }
-        if (photoList.size() == 0){
-            return;
-        }
-        if (photoList.size() >= 1)
-        {img1.setImageBitmap(getPhoto(photoList.get(0)));}
-        if(photoList.size() >= 2){
-            img2.setImageBitmap(getPhoto(photoList.get(1)));
-        }
-        if(photoList.size() >= 3){
-            img3.setImageBitmap(getPhoto(photoList.get(2)));
-        }
-        if(photoList.size() >= 4){
-            img4.setImageBitmap(getPhoto(photoList.get(3)));
+        if (mTask.getPhotos().size() == 0) return;
+        if (mTask.getPhotos().size() >= 1) mPhoto1.setImageBitmap(getPhoto(mTask.getPhotos().get(0)));
+        if (mTask.getPhotos().size() >= 2) mPhoto2.setImageBitmap(getPhoto(mTask.getPhotos().get(1)));
+        if (mTask.getPhotos().size() >= 3) mPhoto3.setImageBitmap(getPhoto(mTask.getPhotos().get(2)));
+        if (mTask.getPhotos().size() >= 4) {
+            mPhoto1.setImageBitmap(getPhoto(mTask.getPhotos().get(mTask.getPhotos().size()-4)));
+            mPhoto2.setImageBitmap(getPhoto(mTask.getPhotos().get(mTask.getPhotos().size()-3)));
+            mPhoto3.setImageBitmap(getPhoto(mTask.getPhotos().get(mTask.getPhotos().size()-2)));
+            mPhoto4.setImageBitmap(getPhoto(mTask.getPhotos().get(mTask.getPhotos().size()-1)));
         }
     }
 
@@ -215,12 +205,11 @@ public class TaskFragment extends Fragment{
                 break;
             }
             case 3:{      // ADDING PHOTOS
-                    if (requestCode == 3 && null != data) {
+                    if (data != null) {
                         // Get the Image from data
                         String imgDecodableString = "";
                         Uri selectedImage = data.getData();
                         String[] filePathColumn = { MediaStore.Images.Media.DATA };
-
                         // Get the cursor
                         Cursor cursor = getContext().getContentResolver().query(selectedImage,
                                 filePathColumn, null, null, null);
@@ -231,19 +220,14 @@ public class TaskFragment extends Fragment{
                         imgDecodableString = cursor.getString(columnIndex);
                         cursor.close();
                         Toast.makeText(getContext(), "Image picked", Toast.LENGTH_LONG).show();
-                        //ImageView imgView = (ImageView) getView().findViewById(R.id.show_photo);
                         // Set the Image in ImageView after decoding the String
-                        //imgView.setImageBitmap(BitmapFactory.decodeFile(imgDecodableString));
                         String photoStr = bitmapToString(BitmapFactory.decodeFile(imgDecodableString));
-                        System.out.println(photoStr);
-                        mTask.addPhoto(photoStr);
+                        mTask.addPhoto(photoStr);                               // adding photo to Task photo array
                         Firebase mDataBasePhotoRef = new Firebase("https://doneaau.firebaseio.com/tasks/"+ mTask.getTaskId() +"/photos/");
-                        mDataBasePhotoRef.push().setValue(photoStr);           // adding photo to Database for that Task
-                        updatePhotos();
-
+                        mDataBasePhotoRef.push().setValue(photoStr);            // adding photo to Database for that Task
+                        updatePhotos();                                         // updates UI
                     } else {
                         Toast.makeText(getContext(), "You haven't picked Image", Toast.LENGTH_LONG).show();
-
                     }
                 updateUI();
                 break;
@@ -306,7 +290,6 @@ public class TaskFragment extends Fragment{
     }
 
     private void updateUI() {
-
         if (mAdapter == null) {
             mAdapter = new TaskAdapter(9);              // passing 9 fragments to the Recycle-View Adapter
             mTaskRecyclerView.setAdapter(mAdapter);}
@@ -525,6 +508,10 @@ public class TaskFragment extends Fragment{
         public TaskHolder6(View itemView) {     // constructor - stashes the views
             super(itemView);
             mAddPhoto = (Button) itemView.findViewById(R.id.add_photo);
+            mPhoto1 = (ImageView) itemView.findViewById(R.id.show_photo1);
+            mPhoto2 = (ImageView) itemView.findViewById(R.id.show_photo2);
+            mPhoto3 = (ImageView) itemView.findViewById(R.id.show_photo3);
+            mPhoto4 = (ImageView) itemView.findViewById(R.id.show_photo4);
         }
         public void bindTask() {
             updatePhotos();
@@ -532,30 +519,11 @@ public class TaskFragment extends Fragment{
             mAddPhoto.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    /*
-                    Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    if (cameraIntent.resolveActivity(getActivity().getPackageManager()) != null) {
-                        // Create the File where the photo should go
-                        File photoFile = null;
-                        try {
-                            photoFile = createImageFile();
-                        } catch (IOException ex) {
-                            // Error occurred while creating the File
-                            Log.i(TAG, "IOException");
-                        }
-                        // Continue only if the File was successfully created
-                        if (photoFile != null) {
-                            cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
-                            startActivityForResult(cameraIntent, 3);
-                        }
-                    }
-                    */
                     Firebase mDataBasePhotoRef = new Firebase("https://doneaau.firebaseio.com/tasks/"+ mTask.getTaskId() +"/photos/");
-                    //if (mDataBasePhotoRef.ge){}
                     // Create intent to Open Image applications like Gallery, Google Photos
                     Intent galleryIntent = new Intent(Intent.ACTION_PICK,
                             android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-// Start the Intent
+                    // Start the Intent
                     startActivityForResult(galleryIntent, 3);
                 }
             });
@@ -566,7 +534,6 @@ public class TaskFragment extends Fragment{
                     return true;
                 }
             });
-
         }
     }
     //this is for the photo
@@ -581,7 +548,6 @@ public class TaskFragment extends Fragment{
                 ".jpg",         // suffix
                 storageDir      // directory
         );
-
         // Save a file: path for use with ACTION_VIEW intents
         mCurrentPhotoPath = "file:" + image.getAbsolutePath();
         return image;
@@ -607,7 +573,7 @@ public class TaskFragment extends Fragment{
         }
     }
 
-    private class TaskHolder8 extends RecyclerView.ViewHolder {  // MARK VERIFIED
+    private class TaskHolder8 extends RecyclerView.ViewHolder {  // SET AS VERIFIED
                                                 // viewholder class holds reference to the entire view passed
         public TaskHolder8(View itemView) {     // constructor - stashes the views
             super(itemView);
