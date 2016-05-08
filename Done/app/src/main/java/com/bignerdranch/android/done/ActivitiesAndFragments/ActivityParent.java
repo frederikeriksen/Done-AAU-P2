@@ -77,6 +77,10 @@ public abstract class ActivityParent extends AppCompatActivity implements Naviga
             // Show all completed tasks
         } else if (id == R.id.nav_profile) {
             // Handle changes on the profile
+            Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+            finish();
         } else if (id == R.id.nav_notifications) {
             // Handle notifications
         } else if (id == R.id.nav_sign_out) {

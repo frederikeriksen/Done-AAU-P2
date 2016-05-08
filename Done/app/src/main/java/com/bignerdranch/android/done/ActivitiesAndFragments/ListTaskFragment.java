@@ -18,6 +18,8 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.bignerdranch.android.done.AppData.RegisteredUsers;
 import com.bignerdranch.android.done.PopUps.DeleteTaskPickerFragment;
 import com.bignerdranch.android.done.R;
 import com.bignerdranch.android.done.AppData.Task;
@@ -162,7 +164,7 @@ public class ListTaskFragment extends Fragment{
     private class TaskHolder extends RecyclerView.ViewHolder { // viewholder class
         // holds reference to the entire view passed to super(view)
         private TextView mTitleTextView;
-        private TextView mCreatedDateTextView;
+        private TextView mAssignedToTextView;
         private TextView mDueDateTextView;
         private CheckBox mCompletedCheckBox;
         private Button mEditButton;
@@ -172,7 +174,7 @@ public class ListTaskFragment extends Fragment{
         public TaskHolder(View itemView) {     // constructor - stashes the views
             super(itemView);
             mTitleTextView = (TextView) itemView.findViewById(R.id.list_item_task_title_text_view);
-            mCreatedDateTextView = (TextView) itemView.findViewById(R.id.list_item_task_created_date_text_view);
+            mAssignedToTextView = (TextView) itemView.findViewById(R.id.list_item_task_assigned_to_text_view);
             mDueDateTextView = (TextView) itemView.findViewById(R.id.due_date_list_view_date);
             mCompletedCheckBox = (CheckBox) itemView.findViewById(R.id.task_completed_check_box);
             mEditButton = (Button) itemView.findViewById(R.id.edit_task_button);
@@ -182,7 +184,12 @@ public class ListTaskFragment extends Fragment{
         public void bindTask(Task task) {
             mTask = task;
             mTitleTextView.setText(mTask.getTaskName());
-            //mCreatedDateTextView.setText(format2.format(mTask.getCreatedDate()));
+            String assignees = "";
+            for (String n: mTask.getAssignees()) {
+                assignees += RegisteredUsers.get().getUser(n).getUserName() + " & ";
+                mAssignedToTextView.setText(assignees.substring(0,assignees.length()-2));
+            }
+            if (mTask.getAssignees().size() == 0) mAssignedToTextView.setText("None");
             if (mTask.getDueDate() == null) mDueDateTextView.setText("Not Set");
             else mDueDateTextView.setText(format2.format(mTask.getDueDate()));
             mCompletedCheckBox.setChecked(mTask.isCompleted());

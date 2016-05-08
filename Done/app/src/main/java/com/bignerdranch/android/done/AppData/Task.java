@@ -17,7 +17,7 @@ public class Task {
     private Date mCreatedDate;
     private String mTaskName;
     private ArrayList<String> mAssignees;
-    private ArrayList<String> mViewers = new ArrayList<>();
+    private ArrayList<String> mNonViewers = new ArrayList<>();
     private Date mDueDate;
     private Date mReminderDate;
     private ArrayList<String> mNotes;
@@ -30,7 +30,7 @@ public class Task {
     public Task(String listId) {                  // constructor with Task ID, List ID
         mListId = listId;
         mAssignees = new ArrayList<>();
-        mViewers= new ArrayList<>();
+        mNonViewers= new ArrayList<>();
         mDueDate = mCreatedDate;
         mReminderDate = mCreatedDate;
         mNotes = new ArrayList<>();
@@ -70,25 +70,17 @@ public class Task {
         return mAssignees;
     }
 
-    public void addAssignee(String mUserName) {
-        // to be implemented
+    public void addAssignee(String userId) {mAssignees.add(userId);}
+
+    public void removeAssignee(String userId) {mAssignees.remove(userId);}
+
+    public ArrayList<String> getNonViewers() {
+        return mNonViewers;
     }
 
-    public void removeAssignee(String mUserName) {
-        // to be implemented
-    }
+    public void addNonViewer(String userId) {mNonViewers.add(userId);}
 
-    public ArrayList<String> getViewers() {
-        return mViewers;
-    }
-
-    public void addViewer(String mUserName) {
-        // to be implemented
-    }
-
-    public void removeViewer(String mUserName) {
-        // to be implemented
-    }
+    public void removeNonViewer(String userId) {mNonViewers.remove(userId);}
 
     public Date getCreatedDate() {
         return mCreatedDate;
@@ -126,9 +118,7 @@ public class Task {
         mNotes.add(note);
     }
 
-    public void removeNote(String mNote) {
-        // to be implemented
-    }
+    public void removeNote(String note) {mNotes.remove(note);}
 
     public Bitmap getPhoto() {
         byte[] imageAsBytes = Base64.decode(mPhoto.getBytes(), Base64.DEFAULT);

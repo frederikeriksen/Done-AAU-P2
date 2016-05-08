@@ -4,6 +4,10 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="list_name_label">List Name:</string>
+    <string name="user_name_label">User Name:</string>
+    <string name="user_email_label">User Email:</string>
+    <string name="user_password_label">User Password:</string>
+    <string name="password_hint">Enter a password.</string>
     <string name="name_hint">Enter a name.</string>
     <string name="note_hint">Enter a note.</string>
     <string name="task_label">Tasks:</string>
@@ -16,17 +20,22 @@
     <string name="list_title_picker_title">Name of New List:</string>
     <string name="edit_list_title_picker_title">Edit Name of List:</string>
     <string name="edit_task_title_picker_title">Edit Name of Task:</string>
+    <string name="edit_user_name_picker_title">Edit User Name:</string>
+    <string name="edit_user_email_picker_title">Edit User Email:</string>
+    <string name="edit_user_password_picker_title">Edit User Password:</string>
     <string name="list_delete_picker_title">Delete List:</string>
     <string name="task_title_picker_title">Name of New Task:</string>
     <string name="task_delete_picker_title">Delete Task:</string>
+    <string name="user_delete_picker_title">Delete User:</string>
     <string name="share_list_picker_title">Share List:</string>
-    <string name="assign_task_picker_title">Assign Task:</string>
-    <string name="hide_task_picker_title">Hide Task:</string>
+    <string name="assign_task_picker_title">Assign Task To:</string>
+    <string name="hide_task_picker_title">Hide Task From:</string>
     <string name="due_date_picker_title">Task Due Date:</string>
     <string name="reminder_date_picker_title">Task Reminder Date:</string>
     <string name="add_note_picker_title">Task Note:</string>
     <string name="new_task">New Task</string>
     <string name="new_list">New List</string>
+    <string name="delete_user">Delete User</string>
     <string name="show_subtitle">Show Subtitle</string> 
     <string name="hide_subtitle">Hide Subtitle</string>
      <string name="subtitle_format">%1$s tasks</string>

@@ -21,7 +21,7 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import com.bignerdranch.android.done.AppData.RegisteredUsers;
 import com.bignerdranch.android.done.PopUps.AssigningTaskPickerFragment;
 import com.bignerdranch.android.done.PopUps.DueDatePickerFragment;
 import com.bignerdranch.android.done.PopUps.EditTaskTitlePickerFragment;
@@ -36,6 +36,7 @@ import com.firebase.client.Firebase;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -57,6 +58,8 @@ public class TaskFragment extends Fragment{
     private Firebase mDataBaseTaskRef = new Firebase("https://doneaau.firebaseio.com/tasks/");
     private SimpleDateFormat format2 = new SimpleDateFormat("EEEE MMM dd, yyyy");
     private Firebase mDataBaseNoteRef;
+    private Firebase mDataBaseTaskAssigneesRef;
+    private Firebase mDataBaseTaskNonViewersRef;
     private Task mTask;
     private List mList;
     private Button mTaskTitle;
@@ -80,6 +83,8 @@ public class TaskFragment extends Fragment{
     private CheckBox mCompletedCheckBox;
     private CheckBox mVerifiedCheckBox;
     private Date date;
+    private ArrayList<String> possAssignees = new ArrayList<>();
+    private ArrayList<String> possNonViewers = new ArrayList<>();
 
     // Fragment-Arguments work just like Intent-Extras for an Activity
     public static TaskFragment newInstance(String taskId, String listId) {   // we use a method to create Fragment instead of using Constructor
@@ -177,9 +182,35 @@ public class TaskFragment extends Fragment{
                 break;
             }
             case 4: {      // ASSIGNING TASKS
+
+                ArrayList mSelectedItems = (ArrayList) data.getSerializableExtra(AssigningTaskPickerFragment.EXTRA_ASSIGNED);
+
+                mTask.getAssignees().clear();
+                for (int i=0; i<mSelectedItems.size(); i++) mTask.getAssignees().add(possAssignees.get((int)mSelectedItems.get(i)));
+
+                mDataBaseTaskAssigneesRef = new Firebase("https://doneaau.firebaseio.com/tasks/"+ mTask.getTaskId() +"/users_assigned_to/");
+                mDataBaseTaskAssigneesRef.setValue(null);
+                Map<String, Object> assignee = new HashMap<String, Object>();
+                for (String as: mTask.getAssignees()) assignee.put(as, true);
+                mDataBaseTaskAssigneesRef.updateChildren(assignee);          // adding assignee to Database for that Task
+
+                updateUI();
                 break;
             }
             case 5: {      // HIDING TASKS
+
+                ArrayList mSelectedItems = (ArrayList) data.getSerializableExtra(HidingTaskPickerFragment.EXTRA_HIDDEN_FROM);
+
+                mTask.getNonViewers().clear();
+                for (int i=0; i<mSelectedItems.size(); i++) mTask.getNonViewers().add(possNonViewers.get((int)mSelectedItems.get(i)));
+
+                mDataBaseTaskNonViewersRef = new Firebase("https://doneaau.firebaseio.com/tasks/"+ mTask.getTaskId() +"/users_hidden_from/");
+                mDataBaseTaskNonViewersRef.setValue(null);
+                Map<String, Object> nonviewer = new HashMap<String, Object>();
+                for (String as: mTask.getNonViewers()) nonviewer.put(as, true);
+                mDataBaseTaskNonViewersRef.updateChildren(nonviewer);          // adding assignee to Database for that Task
+
+                updateUI();
                 break;
             }
             case 12: {     // CHANGING TASK NAME
@@ -196,10 +227,6 @@ public class TaskFragment extends Fragment{
     }
 
     private void updateTaskTitle() {mTaskTitleTextView.setText(mTask.getTaskName());}
-
-    private void updateAssignees() {mAssignedToTextView.setText("");}
-
-    private void updateViewers() {mHiddenFromTextView.setText("");}
 
     private void updateDueDate() {
         if (mTask.getDueDate() == null) mDueDateTextView.setText("Not Set");
@@ -259,19 +286,26 @@ public class TaskFragment extends Fragment{
             mAssignedToTextView = (TextView) itemView.findViewById(R.id.assigned_to_text_view);
         }
         public void bindTask() {
-            updateAssignees();
-            mAssignedToTextView.setText("None");
+            String assignees = "";
+            for (String n: mTask.getAssignees()) {
+                assignees += RegisteredUsers.get().getUser(n).getUserName() + " & ";
+                mAssignedToTextView.setText(assignees.substring(0,assignees.length()-2));
+            }
+            if (mTask.getAssignees().size() == 0) mAssignedToTextView.setText("None");
             mAssignedTo.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (User.get().getUserId().equals(mList.getCreatorId())) {
+                    possAssignees.clear();
+                    for (String lu: mList.getListUsers()) possAssignees.add(lu);
+                    for (String nv: mTask.getNonViewers()) possAssignees.remove(nv);
+                    if (possAssignees != null) {
                         FragmentManager manager = getFragmentManager();
-                        AssigningTaskPickerFragment dialog = new AssigningTaskPickerFragment();//assigns the task
-                        dialog.setTargetFragment(TaskFragment.this, 4);
+                        AssigningTaskPickerFragment dialog = AssigningTaskPickerFragment.newInstance(possAssignees, mList.getListId(), mTask.getTaskId());
+                        dialog.setTargetFragment(TaskFragment.this, 4); //pop up to assign the task
                         dialog.show(manager, DIALOG_ASSIGN_TASK);
                     }
                     else {
-                        Toast.makeText(getContext(), "The task can be assigned only by its creator", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "There is no visible and shared user to whom this task can be assigned", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
@@ -293,19 +327,26 @@ public class TaskFragment extends Fragment{
             mHiddenFromTextView = (TextView) itemView.findViewById(R.id.hidden_from_text_view);
         }
         public void bindTask() {
-            updateViewers();
-            mHiddenFromTextView.setText("None");
+            String nonviewers = "";
+            for (String n: mTask.getNonViewers()) {
+                nonviewers += RegisteredUsers.get().getUser(n).getUserName() + " & ";
+                mHiddenFromTextView.setText(nonviewers.substring(0,nonviewers.length()-2));
+            }
+            if (mTask.getNonViewers().size() == 0) mHiddenFromTextView.setText("None");
             mHiddenFrom.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (User.get().getUserId().equals(mList.getCreatorId())) {
+                    possNonViewers.clear();
+                    for (String lu: mList.getListUsers()) possNonViewers.add(lu);
+                    for (String as: mTask.getAssignees()) possNonViewers.remove(as);
+                    if (possNonViewers != null) {
                         FragmentManager manager = getFragmentManager();
-                        HidingTaskPickerFragment dialog = new HidingTaskPickerFragment();//hides the task
-                        dialog.setTargetFragment(TaskFragment.this, 5);
+                        HidingTaskPickerFragment dialog = HidingTaskPickerFragment.newInstance(possNonViewers, mList.getListId(), mTask.getTaskId());
+                        dialog.setTargetFragment(TaskFragment.this, 5); //pop up to hide the task
                         dialog.show(manager, DIALOG_HIDE_TASK);
                     }
                     else {
-                        Toast.makeText(getContext(), "The task can be assigned only by its creator", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "There is no unassigned and shared user from which this task can be hidden", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
@@ -465,13 +506,15 @@ public class TaskFragment extends Fragment{
         return image;
     }
 
-    private class TaskHolder7 extends RecyclerView.ViewHolder {  // MARK COMPLETED
+    private class TaskHolder7 extends RecyclerView.ViewHolder {  // SET AS COMPLETED
                                                 // viewholder class holds reference to the entire view passed
         public TaskHolder7(View itemView) {     // constructor - stashes the views
             super(itemView);
             mCompletedCheckBox = (CheckBox) itemView.findViewById(R.id.task_completed);
         }
         public void bindTask() {
+            if (mTask.getAssignees() == null || mTask.getAssignees().contains(User.get().getUserId())) mCompletedCheckBox.setEnabled(true);
+            else mCompletedCheckBox.setEnabled(false);
             mCompletedCheckBox.setChecked(mTask.isCompleted());
             mCompletedCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -490,6 +533,9 @@ public class TaskFragment extends Fragment{
             mVerifiedCheckBox = (CheckBox) itemView.findViewById(R.id.task_verified);
         }
         public void bindTask() {
+            if (mTask.isCompleted() && mTask.getAssignees() != null &&
+                    !mTask.getAssignees().contains(User.get().getUserId())) mVerifiedCheckBox.setEnabled(true);
+            else mVerifiedCheckBox.setEnabled(false);
             mVerifiedCheckBox.setChecked(mTask.isCompleted());
             mVerifiedCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {

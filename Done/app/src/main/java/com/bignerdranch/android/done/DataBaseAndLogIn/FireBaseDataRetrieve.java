@@ -236,6 +236,14 @@ public class FireBaseDataRetrieve extends Service {
                             } catch (ParseException e) {
                             }
                         }
+                        for (DataSnapshot user : snapshot.child("users_assigned_to/").getChildren()) {
+                            userTask.addAssignee(user.getKey());
+                            Log.d(TAG, "Task Assigned To: " + RegisteredUsers.get().getUser(user.getKey()).getUserName());
+                        }
+                        for (DataSnapshot user : snapshot.child("users_hidden_from/").getChildren()) {
+                            userTask.addNonViewer(user.getKey());
+                            Log.d(TAG, "Task Hidden From: " + RegisteredUsers.get().getUser(user.getKey()).getUserName());
+                        }
                         for (DataSnapshot noteSnapshot : snapshot.child("notes/").getChildren()) {
                             DataBaseNotes note = noteSnapshot.getValue(DataBaseNotes.class);
                             userTask.getNotes().add(note.getUser() + ": " + note.getNote());
@@ -259,13 +267,21 @@ public class FireBaseDataRetrieve extends Service {
                 Boolean completed = (Boolean) dataSnapshot.child("completed").getValue();
                 Boolean verified = (Boolean) dataSnapshot.child("verified").getValue();
 
+                User.get().getList(listId).getTask(taskId).getAssignees().clear();
+                for (DataSnapshot userSnapshot: dataSnapshot.child("users_assigned_to/").getChildren()) {
+                    User.get().getList(listId).getTask(taskId).getAssignees().add(userSnapshot.getKey());   // CHANGES ASSIGNED USERS IN TASK
+                }
+                User.get().getList(listId).getTask(taskId).getNonViewers().clear();
+                for (DataSnapshot userSnapshot: dataSnapshot.child("users_hidden_from/").getChildren()) {
+                    User.get().getList(listId).getTask(taskId).getNonViewers().add(userSnapshot.getKey());   // CHANGES HIDDEN USERS IN TASK
+                }
                 curUser.getList(listId).getTask(taskId).getNotes().clear();
                 for (DataSnapshot noteSnapshot : dataSnapshot.child("notes/").getChildren()) {
                     DataBaseNotes note = noteSnapshot.getValue(DataBaseNotes.class);
                     curUser.getList(listId).getTask(taskId).getNotes().add(note.getUser() + ": " + note.getNote());
                 }
 
-                Log.d(TAG, "Updated Task Name: " + title);                  // LOGS THE UPDATED DATA OF THE LIST
+                Log.d(TAG, "Updated Task Name: " + title);                  // LOGS THE UPDATED DATA OF THE TASK
                 Log.d(TAG, "Updated Due Date: " + dueDate);
                 Log.d(TAG, "Updated Reminder Date: " + reminderDate);
                 Log.d(TAG, "Updated Completion: " + completed);
@@ -285,7 +301,7 @@ public class FireBaseDataRetrieve extends Service {
                 Log.d(TAG, "Completion already updated: " + completionAlreadyUpdated);
                 Log.d(TAG, "Verification already updated: " + verificationAlreadyUpdated);
 
-                if (!taskNameAlreadyUpdated) {                              // LIST DATA ARE NOT YET UPDATED IN USER TASKS-ARRAY
+                if (!taskNameAlreadyUpdated) {                                      // TASK DATA ARE NOT YET UPDATED IN USER TASKS-ARRAY
 
                     curUser.getList(listId).getTask(taskId).setTaskName(title);     // ADDS DATABASE TASK DATA TO USER TASKS-ARRAY
                 }

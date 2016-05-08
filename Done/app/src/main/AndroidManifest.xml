@@ -19,6 +19,7 @@
         <activity
             android:name=".ActivitiesAndFragments.ListActivity"
             android:label="Done"
+            android:parentActivityName=".ActivitiesAndFragments.UserActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ActivitiesAndFragments.TaskActivity"
@@ -26,14 +27,16 @@
             android:parentActivityName=".ActivitiesAndFragments.UserActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
+            android:name=".ActivitiesAndFragments.SettingsActivity"
+            android:label="Done"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
             android:name=".DataBaseAndLogIn.LoginActivity"
             android:label="LoginActivity"
-            android:parentActivityName=".DataBaseAndLogIn.LoginActivity"
             android:theme="@style/AppTheme" />
         <activity
             android:name=".DataBaseAndLogIn.RegisterActivity"
             android:label="@string/title_activity_register"
-            android:parentActivityName=".DataBaseAndLogIn.LoginActivity"
             android:theme="@style/AppTheme" />
         <activity
             android:name=".DataBaseAndLogIn.LogoPageActivity"
