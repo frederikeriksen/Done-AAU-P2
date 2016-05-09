@@ -1,9 +1,12 @@
 package com.bignerdranch.android.done.DataBaseAndLogIn;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -12,6 +15,8 @@ import com.bignerdranch.android.done.R;
 import com.bignerdranch.android.done.AppData.User;
 import com.bignerdranch.android.done.ActivitiesAndFragments.UserActivity;
 import com.firebase.client.Firebase;
+
+import java.io.ByteArrayOutputStream;
 import java.util.UUID;
 
 /**
@@ -78,6 +83,7 @@ public class RegisterActivity extends AppCompatActivity {
                     userNew.setEmail(email);
                     userNew.setUserName(name);
                     userNew.setPassword(password);
+                    userNew.setPhoto(imageIntoString());
                     mRef.child(userNew.getUserId()).setValue(userNew);
 
                     User.get().getUserLists().clear();                  // Existing User data emptied
@@ -85,15 +91,24 @@ public class RegisterActivity extends AppCompatActivity {
                     User.get().setUserName(name);
                     User.get().setEmail(email);
                     User.get().setPassword(password);
+                    User.get().setPhoto(imageIntoString());
 
                     Toast.makeText(getApplicationContext(), "User registered", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(getApplicationContext(), UserActivity.class);
                     startActivity(intent);
                 }
-
             }
         });
+    }
 
+    public String imageIntoString () {       // makes an empty picture icon into string
+
+        Bitmap bm = BitmapFactory.decodeResource(getResources(),R.drawable.photoicon);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bm.compress(Bitmap.CompressFormat.JPEG, 100, baos); //bm is the bitmap object
+        byte[] byteArrayImage = baos.toByteArray();
+        String encodedImage = Base64.encodeToString(byteArrayImage, Base64.DEFAULT);
+        return encodedImage;
     }
 
     public final static boolean isValidEmail(CharSequence target) {
