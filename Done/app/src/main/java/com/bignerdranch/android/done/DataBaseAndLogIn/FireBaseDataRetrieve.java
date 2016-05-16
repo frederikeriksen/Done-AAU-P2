@@ -57,7 +57,7 @@ public class FireBaseDataRetrieve extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
 
         curUser = User.get();
-        Log.d(TAG, "User Name: " + User.get().getUserName());                // LOGS THE NAME OF THE USER
+        Log.d(TAG, "User Name: " + User.get().getUserName());                // LOGS THE NAME OF THE CURRENT APP USER
 
         //           R E T R I E V E S     U S E R S
         Firebase mRefUsers = new Firebase("https://doneaau.firebaseio.com/users/");
@@ -69,7 +69,7 @@ public class FireBaseDataRetrieve extends Service {
 
                 DataBaseUsers user = snapshot.getValue(DataBaseUsers.class);
 
-                Log.d(TAG, "User Name: " + user.getUserName());          // LOGS THE NAME OF THE USER
+                Log.d(TAG, "User Name: " + user.getUserName());          // LOGS THE NAME OF THE USER WHICH IS RETRIEVED
 
                 userAlreadyAdded = RegisteredUsers.get().getUser(user.getUserId()) != null;
 
@@ -200,9 +200,16 @@ public class FireBaseDataRetrieve extends Service {
                 String listId = (String) dataSnapshot.child("listId").getValue();
                 String title = (String) dataSnapshot.child("listName").getValue();
 
-                User.get().getList(listId).getListUsers().clear();
-                for (DataSnapshot userSnapshot: dataSnapshot.child("shared_users/").getChildren()) {
-                    User.get().getList(listId).getListUsers().add(userSnapshot.getKey());   // CHANGES SHARED USERS IN LIST
+                if (User.get().getList(listId).getListUsers() == null) {
+                    for (DataSnapshot userSnapshot: dataSnapshot.child("shared_users/").getChildren()) {
+                        User.get().getList(listId).getListUsers().add(userSnapshot.getKey());   // CHANGES SHARED USERS IN LIST
+                    }
+                }
+                else {
+                    User.get().getList(listId).getListUsers().clear();
+                    for (DataSnapshot userSnapshot : dataSnapshot.child("shared_users/").getChildren()) {
+                        User.get().getList(listId).getListUsers().add(userSnapshot.getKey());   // CHANGES SHARED USERS IN LIST
+                    }
                 }
 
                 Log.d(TAG, "Updated List Name: " + title);                  // LOGS THE UPDATED NAME OF THE LIST

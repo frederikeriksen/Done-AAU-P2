@@ -142,9 +142,7 @@ public class Task {
         return mPhotos;
     }
 
-    public boolean isCompleted() {
-        return mCompleted;
-    }
+    public boolean isCompleted() {return mCompleted;}
 
     public void setCompleted(boolean completed) {
         mCompleted = completed;
