@@ -26,7 +26,6 @@ public class FireBaseDataRetrieve extends Service {
     private static final String TAG = "DoneActivity";
     SimpleDateFormat format = new SimpleDateFormat("EEE MMM dd, yyyy hh:mm a");
     SimpleDateFormat format2 = new SimpleDateFormat("EEEE MMM dd, yyyy");
-    ArrayList<String> users = new ArrayList<String>();
     User curUser;
     boolean userAlreadyAdded;
     boolean userNameAlreadyUpdated;
@@ -44,6 +43,7 @@ public class FireBaseDataRetrieve extends Service {
     boolean completionAlreadyUpdated;
     boolean verificationAlreadyUpdated;
     boolean taskNotAlreadyDeleted;
+    boolean existsUserListForTask;
 
     public FireBaseDataRetrieve() {
     }
@@ -89,6 +89,7 @@ public class FireBaseDataRetrieve extends Service {
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) { // Retrieves updated data for the user
 
+                String userId = (String) dataSnapshot.child("userId").getValue();
                 String userName = (String) dataSnapshot.child("userName").getValue();
                 String password = (String) dataSnapshot.child("password").getValue();
                 String email = (String) dataSnapshot.child("email").getValue();
@@ -99,10 +100,10 @@ public class FireBaseDataRetrieve extends Service {
                 Log.d(TAG, "Updated Email: " + email);
                 Log.d(TAG, "Updated Photo: " + photo);
 
-                userNameAlreadyUpdated = (curUser.getUserName()).equals(userName);
-                passwordAlreadyUpdated = (curUser.getPassword()).equals(password);
-                emailAlreadyUpdated = (curUser.getEmail()).equals(email);
-                photoAlreadyUpdated = (curUser.getPhoto()).equals(photo);
+                userNameAlreadyUpdated = (RegisteredUsers.get().getUser(userId).getUserName()).equals(userName);
+                passwordAlreadyUpdated = (RegisteredUsers.get().getUser(userId).getPassword()).equals(password);
+                emailAlreadyUpdated = (RegisteredUsers.get().getUser(userId).getEmail()).equals(email);
+                photoAlreadyUpdated = (RegisteredUsers.get().getUser(userId).getPhoto()).equals(photo);
 
                 Log.d(TAG, "User Name already updated: " + userNameAlreadyUpdated);
                 Log.d(TAG, "Password already updated: " + passwordAlreadyUpdated);
@@ -111,19 +112,19 @@ public class FireBaseDataRetrieve extends Service {
 
                 if (!userNameAlreadyUpdated) {                                      // USER DATA ARE NOT YET UPDATED IN USER ARRAY
 
-                    curUser.setUserName(userName);                                  // ADDS DATABASE USER DATA TO USER ARRAY
+                    RegisteredUsers.get().getUser(userId).setUserName(userName);    // ADDS DATABASE USER DATA TO REG-USER ARRAY
                 }
                 if (!passwordAlreadyUpdated) {                                      // USER DATA ARE NOT YET UPDATED IN USER ARRAY
 
-                    curUser.setPassword(password);                                  // ADDS DATABASE USER DATA TO USER ARRAY
+                    RegisteredUsers.get().getUser(userId).setPassword(password);    // ADDS DATABASE USER DATA TO REG-USER ARRAY
                 }
-                if (!emailAlreadyUpdated) {                                      // USER DATA ARE NOT YET UPDATED IN USER ARRAY
+                if (!emailAlreadyUpdated) {                                         // USER DATA ARE NOT YET UPDATED IN USER ARRAY
 
-                    curUser.setEmail(email);                                  // ADDS DATABASE USER DATA TO USER ARRAY
+                    RegisteredUsers.get().getUser(userId).setEmail(email);          // ADDS DATABASE USER DATA TO REG-USER ARRAY
                 }
-                if (!photoAlreadyUpdated) {                                      // USER DATA ARE NOT YET UPDATED IN USER ARRAY
+                if (!photoAlreadyUpdated) {                                         // USER DATA ARE NOT YET UPDATED IN USER ARRAY
 
-                    curUser.setPhoto(photo);                                  // ADDS DATABASE USER DATA TO USER ARRAY
+                    RegisteredUsers.get().getUser(userId).setPhoto(photo);          // ADDS DATABASE USER DATA TO REG-USER ARRAY
                 }
             }
 
@@ -166,10 +167,12 @@ public class FireBaseDataRetrieve extends Service {
                 String listId = (String) snapshot.child("listId").getValue();
                 String creatorId = (String) snapshot.child("creatorId").getValue();
                 String listName = (String) snapshot.child("listName").getValue();
-                users.clear();
+                ArrayList<String> users = new ArrayList<String>();  // shared users
                 for (DataSnapshot user : snapshot.child("shared_users/").getChildren()) {
                     users.add(user.getKey());
+                    Log.d(TAG, "AddedList - Users: " + user.getKey());
                 }
+                Log.d(TAG, "Shared Users: " + users.contains(curUser.getUserId()));
 
                 if (curUser.getUserId().equals(creatorId) || users.contains(curUser.getUserId())) {      // THE DATABASE LIST IS CREATED BY THIS USER
                                                                                                         // OR IS SHARED WITH THIS USER
@@ -184,10 +187,8 @@ public class FireBaseDataRetrieve extends Service {
                         currList.setListId(listId);
                         currList.setListName(listName);
                         currList.setCreatorId(creatorId);
-
-                        for (DataSnapshot user : snapshot.child("shared_users/").getChildren()) {
-                            currList.addListUser(user.getKey());
-                            Log.d(TAG, "List Shared With: " + RegisteredUsers.get().getUser(user.getKey()).getUserName());
+                        for (String u: users) {
+                            currList.addListUser(u);
                         }
                         curUser.addUserList(currList);                      // ADDS DATABASE LIST TO USER LISTS-ARRAY
                     }
@@ -198,29 +199,46 @@ public class FireBaseDataRetrieve extends Service {
             public void onChildChanged(DataSnapshot dataSnapshot, String s) { // Retrieves updated list data for the user
 
                 String listId = (String) dataSnapshot.child("listId").getValue();
-                String title = (String) dataSnapshot.child("listName").getValue();
-
-                if (User.get().getList(listId).getListUsers() == null) {
-                    for (DataSnapshot userSnapshot: dataSnapshot.child("shared_users/").getChildren()) {
-                        User.get().getList(listId).getListUsers().add(userSnapshot.getKey());   // CHANGES SHARED USERS IN LIST
-                    }
+                String creatorId = (String) dataSnapshot.child("creatorId").getValue();
+                String listName = (String) dataSnapshot.child("listName").getValue();
+                ArrayList<String> users = new ArrayList<String>();              // shared users
+                for (DataSnapshot user : dataSnapshot.child("shared_users/").getChildren()) {
+                    users.add(user.getKey());                                   // COLLECTS SHARED USERS IN LIST
+                    Log.d(TAG, "AddedList - Users: " + user.getKey());
                 }
-                else {
+                Log.d(TAG, "Shared Users: " + users.contains(curUser.getUserId()));
+
+                if (User.get().getList(listId) != null) {                   // LIST ALREADY IN USER-LISTS (OWN OR SHARED)
+
+                    Log.d(TAG, "Updated List Name: " + listName);                  // LOGS THE UPDATED NAME OF THE LIST
+
+                    listNameAlreadyUpdated = (curUser.getList(listId).getListName()).equals(listName);
+
+                    Log.d(TAG, "List name already updated: " + listNameAlreadyUpdated);  // LOGS IF THE LIST NAME IS ALREADY UPDATED IN LISTS-ARRAY
+
+                    if (!listNameAlreadyUpdated) {                              // LIST NAME IS NOT YET UPDATED IN USER LISTS-ARRAY
+
+                        curUser.getList(listId).setListName(listName);             // CHANGES DATABASE LIST NAME IN USER LISTS-ARRAY LIST NAME
+                    }
                     User.get().getList(listId).getListUsers().clear();
-                    for (DataSnapshot userSnapshot : dataSnapshot.child("shared_users/").getChildren()) {
-                        User.get().getList(listId).getListUsers().add(userSnapshot.getKey());   // CHANGES SHARED USERS IN LIST
+                    for (String u: users) {
+                        User.get().getList(listId).getListUsers().add(u);       // CHANGES SHARED USERS IN LIST
+                    }
+                    if (!users.contains(curUser.getUserId())) {
+                        User.get().removeUserList(User.get().getList(listId));  // REMOVES LIST IF UN-SHARED
                     }
                 }
-
-                Log.d(TAG, "Updated List Name: " + title);                  // LOGS THE UPDATED NAME OF THE LIST
-
-                listNameAlreadyUpdated = (curUser.getList(listId).getListName()).equals(title);
-
-                Log.d(TAG, "List name already updated: " + listNameAlreadyUpdated);  // LOGS IF THE LIST NAME IS ALREADY UPDATED IN LISTS-ARRAY
-
-                if (!listNameAlreadyUpdated) {                              // LIST NAME IS NOT YET UPDATED IN USER LISTS-ARRAY
-
-                    curUser.getList(listId).setListName(title);             // CHANGES DATABASE LIST NAME IN USER LISTS-ARRAY LIST NAME
+                else {                                                      // LIST NOT IN USER-LISTS
+                    if (users.contains(curUser.getUserId())) {              // IF LIST SHARED
+                        final List currList = new List(creatorId);
+                        currList.setListId(listId);
+                        currList.setListName(listName);
+                        currList.setCreatorId(creatorId);
+                        for (String u: users) {
+                            currList.addListUser(u);                        // ADDS SHARED USERS IN LIST
+                        }
+                        curUser.addUserList(currList);
+                    }                                           // ADDS DATABASE LIST TO USER LISTS-ARRAY
                 }
             }
 
@@ -268,63 +286,65 @@ public class FireBaseDataRetrieve extends Service {
                 String reminderDate = (String) snapshot.child("reminderDate").getValue();
                 Boolean completed = (Boolean) snapshot.child("completed").getValue();
                 Boolean verified = (Boolean) snapshot.child("verified").getValue();
+                ArrayList<String> users = new ArrayList<String>();                  // hidden users
+                for (DataSnapshot userSnapshot : snapshot.child("users_hidden_from/").getChildren()) {
+                    users.add(userSnapshot.getKey());                               // COLLECTS HIDDEN USERS IN TASK
+                }
 
-                List arrayListForTask = curUser.getList(listId);
+                existsUserListForTask = curUser.getList(listId) != null;
 
-                if (arrayListForTask != null) {                             // THERE IS A USER-LIST ADDED, WHERE THE TASK MUST GO
+                if (existsUserListForTask) {                                // THERE IS A USER-LIST, WHERE THE TASK MUST GO
 
                     Log.d(TAG, "Task Name: " + taskName);                   // LOGS THE NAME OF THE TASK
 
-                    taskAlreadyAdded = arrayListForTask.getTask(taskId) != null;
+                    taskAlreadyAdded = curUser.getList(listId).getTask(taskId) != null;
 
                     Log.d(TAG, "Task already added: " + taskAlreadyAdded);  // LOGS IF THE TASK IS ALREADY ADDED TO TASKS-ARRAY
 
-                    if (!taskAlreadyAdded) {                                // TASK IS NOT YET ADDED TO USER-LIST TASKS-ARRAY
+                    if (!users.contains(curUser.getUserId())) {             // IF TASK NOT HIDDEN
 
-                        Task userTask = new Task(listId);
-                        userTask.setTaskId(taskId);
-                        userTask.setListId(listId);
-                        userTask.setTaskName(taskName);
-                        try {
-                            userTask.setCreatedDate(format.parse(createdDate));
-                        } catch (ParseException e) {
-                        }
-                        if (dueDate != null) {
+                        if (!taskAlreadyAdded) {                            // TASK IS NOT YET ADDED TO USER-LIST TASKS-ARRAY
+                            Task userTask = new Task(listId);
+                            userTask.setTaskId(taskId);
+                            userTask.setListId(listId);
+                            userTask.setTaskName(taskName);
                             try {
-                                userTask.setDueDate(format2.parse(dueDate));
+                                userTask.setCreatedDate(format.parse(createdDate));
                             } catch (ParseException e) {
                             }
-                        }
-                        if (reminderDate != null) {
-                            try {
-                                userTask.setReminderDate(format2.parse(reminderDate));
-                            } catch (ParseException e) {
+                            if (dueDate != null) {
+                                try {
+                                    userTask.setDueDate(format2.parse(dueDate));
+                                } catch (ParseException e) {
+                                }
                             }
-                        }
-                        for (DataSnapshot user : snapshot.child("users_assigned_to/").getChildren()) {
-                            userTask.addAssignee(user.getKey());
-                            Log.d(TAG, "Task Assigned To: " + RegisteredUsers.get().getUser(user.getKey()).getUserName());
-                        }
-                        for (DataSnapshot user : snapshot.child("users_hidden_from/").getChildren()) {
-                            userTask.addNonViewer(user.getKey());
-                            Log.d(TAG, "Task Hidden From: " + RegisteredUsers.get().getUser(user.getKey()).getUserName());
-                        }
-                        for (DataSnapshot noteSnapshot : snapshot.child("notes/").getChildren()) {
-                            DataBaseNotes note = noteSnapshot.getValue(DataBaseNotes.class);
-                            userTask.getNotes().add(note.getUser() + ": " + note.getNote());
-                        }
-                        for (DataSnapshot noteSnapshot : snapshot.child("photos/").getChildren()) {
-                            String photo = noteSnapshot.getValue(String.class);
-                            userTask.addPhoto(photo);
-                        }
-                        userTask.setCompleted(completed);
-                        userTask.setVerified(verified);
+                            if (reminderDate != null) {
+                                try {
+                                    userTask.setReminderDate(format2.parse(reminderDate));
+                                } catch (ParseException e) {
+                                }
+                            }
+                            for (DataSnapshot user : snapshot.child("users_assigned_to/").getChildren()) {
+                                userTask.addAssignee(user.getKey());
+                                Log.d(TAG, "Task Assigned To: " + RegisteredUsers.get().getUser(user.getKey()).getUserName());
+                            }
+                            for (String u: users) {
+                                userTask.getNonViewers().add(u);                 
+                                Log.d(TAG, "Task Hidden From: " + RegisteredUsers.get().getUser(u));
+                            }
+                            for (DataSnapshot noteSnapshot : snapshot.child("notes/").getChildren()) {
+                                DataBaseNotes note = noteSnapshot.getValue(DataBaseNotes.class);
+                                userTask.getNotes().add(note.getUser() + ": " + note.getNote());
+                            }
+                            for (DataSnapshot photoSnapshot : snapshot.child("photos/").getChildren()) {
+                                String photo = photoSnapshot.getValue(String.class);
+                                userTask.addPhoto(photo);
+                            }
+                            userTask.setCompleted(completed);
+                            userTask.setVerified(verified);
 
-                        arrayListForTask.addListTask(userTask);             // ADDS DATABASE TASK TO USER-LIST TASKS-ARRAY
-                    }
-                    if (curUser.getList(listId).getTask(taskId).getNonViewers() != null &&
-                            curUser.getList(listId).getTask(taskId).getNonViewers().contains(curUser.getUserId())) {
-                        curUser.getList(listId).getListTasks().remove(curUser.getList(listId).getTask(taskId));
+                            curUser.getList(listId).addListTask(userTask);             // ADDS DATABASE TASK TO USER-LIST TASKS-ARRAY
+                        }
                     }
                 }
             }
@@ -335,74 +355,146 @@ public class FireBaseDataRetrieve extends Service {
                 String listId = (String) dataSnapshot.child("listId").getValue();
                 String taskId = (String) dataSnapshot.child("taskId").getValue();
                 String title = (String) dataSnapshot.child("taskName").getValue();
+                String createdDate = (String) dataSnapshot.child("createdDate").getValue();
                 String dueDate = (String) dataSnapshot.child("dueDate").getValue();
                 String reminderDate = (String) dataSnapshot.child("reminderDate").getValue();
                 Boolean completed = (Boolean) dataSnapshot.child("completed").getValue();
                 Boolean verified = (Boolean) dataSnapshot.child("verified").getValue();
-
-                User.get().getList(listId).getTask(taskId).getAssignees().clear();
-                for (DataSnapshot userSnapshot: dataSnapshot.child("users_assigned_to/").getChildren()) {
-                    User.get().getList(listId).getTask(taskId).getAssignees().add(userSnapshot.getKey());   // CHANGES ASSIGNED USERS IN TASK
-                }
-                User.get().getList(listId).getTask(taskId).getNonViewers().clear();
-                for (DataSnapshot userSnapshot: dataSnapshot.child("users_hidden_from/").getChildren()) {
-                    User.get().getList(listId).getTask(taskId).getNonViewers().add(userSnapshot.getKey());   // CHANGES HIDDEN USERS IN TASK
-                }
-                curUser.getList(listId).getTask(taskId).getNotes().clear();
-
-                for (DataSnapshot noteSnapshot : dataSnapshot.child("notes/").getChildren()) { // CHANGES NOTES IN TASK
-                    DataBaseNotes note = noteSnapshot.getValue(DataBaseNotes.class);
-                    curUser.getList(listId).getTask(taskId).getNotes().add(note.getUser() + ": " + note.getNote());
-                }
-                for (DataSnapshot noteSnapshot : dataSnapshot.child("photos/").getChildren()) {
-                    String photo = noteSnapshot.getValue(String.class);
-                    curUser.getList(listId).getTask(taskId).addPhoto(photo);
+                ArrayList<String> users = new ArrayList<String>();                  // hidden users
+                for (DataSnapshot userSnapshot : dataSnapshot.child("users_hidden_from/").getChildren()) {
+                    users.add(userSnapshot.getKey());                               // COLLECTS HIDDEN USERS IN TASK
                 }
 
-                Log.d(TAG, "Updated Task Name: " + title);                  // LOGS THE UPDATED DATA OF THE TASK
-                Log.d(TAG, "Updated Due Date: " + dueDate);
-                Log.d(TAG, "Updated Reminder Date: " + reminderDate);
-                Log.d(TAG, "Updated Completion: " + completed);
-                Log.d(TAG, "Updated Verification: " + verified);
+                existsUserListForTask = curUser.getList(listId) != null;
 
-                taskNameAlreadyUpdated = (curUser.getList(listId).getTask(taskId).getTaskName()).equals(title);
-                if (curUser.getList(listId).getTask(taskId).getDueDate() == null) dueDateAlreadyUpdated = false;
-                else dueDateAlreadyUpdated = (format2.format(curUser.getList(listId).getTask(taskId).getDueDate())).equals(dueDate);
-                if (curUser.getList(listId).getTask(taskId).getReminderDate() == null) reminderDateAlreadyUpdated = false;
-                else reminderDateAlreadyUpdated = (format2.format(curUser.getList(listId).getTask(taskId).getReminderDate())).equals(reminderDate);
-                completionAlreadyUpdated = (curUser.getList(listId).getTask(taskId).isCompleted()) == (completed);
-                verificationAlreadyUpdated = (curUser.getList(listId).getTask(taskId).isVerified()) == (verified);
+                if (existsUserListForTask) {                             // THERE IS A USER-LIST, WHERE THE TASK MUST GO
 
-                Log.d(TAG, "Task name already updated: " + taskNameAlreadyUpdated); // LOGS IF THE TASK DATA ARE ALREADY UPDATED IN TASKS-ARRAY
-                Log.d(TAG, "Due Date already updated: " + dueDateAlreadyUpdated);
-                Log.d(TAG, "Reminder Date already updated: " + reminderDateAlreadyUpdated);
-                Log.d(TAG, "Completion already updated: " + completionAlreadyUpdated);
-                Log.d(TAG, "Verification already updated: " + verificationAlreadyUpdated);
+                    Log.d(TAG, "Task Name: " + title);                   // LOGS THE NAME OF THE TASK
 
-                if (!taskNameAlreadyUpdated) {                                      // TASK DATA ARE NOT YET UPDATED IN USER TASKS-ARRAY
+                    if (User.get().getList(listId).getTask(taskId) != null) {               // TASK EXISTS IN USER-LIST - OWN OR SHARED
 
-                    curUser.getList(listId).getTask(taskId).setTaskName(title);     // ADDS DATABASE TASK DATA TO USER TASKS-ARRAY
-                }
-                if (!dueDateAlreadyUpdated && dueDate != null) {
+                        if (!users.contains(curUser.getUserId())) {                         // IF TASK NOT HIDDEN
 
-                    try{curUser.getList(listId).getTask(taskId).setDueDate(format2.parse(dueDate));}
-                    catch(ParseException e){}
-                }
-                if (!reminderDateAlreadyUpdated && reminderDate != null) {
+                            User.get().getList(listId).getTask(taskId).getNonViewers().clear();
+                            for (String u: users) {
+                                User.get().getList(listId).getTask(taskId).getNonViewers().add(u);   // CHANGES HIDDEN USERS IN TASK
+                            }
 
-                    try{curUser.getList(listId).getTask(taskId).setReminderDate(format2.parse(reminderDate));}
-                    catch(ParseException e){}
-                }
-                if (!completionAlreadyUpdated) {
+                            User.get().getList(listId).getTask(taskId).getAssignees().clear();
+                            for (DataSnapshot userSnapshot : dataSnapshot.child("users_assigned_to/").getChildren()) {
+                                User.get().getList(listId).getTask(taskId).getAssignees().add(userSnapshot.getKey());   // CHANGES ASSIGNED USERS IN TASK
+                            }
 
-                    curUser.getList(listId).getTask(taskId).setCompleted(completed);
-                }
-                if (!verificationAlreadyUpdated) {
+                            for (DataSnapshot noteSnapshot : dataSnapshot.child("notes/").getChildren()) { // CHANGES NOTES IN TASK
+                                DataBaseNotes note = noteSnapshot.getValue(DataBaseNotes.class);
+                                curUser.getList(listId).getTask(taskId).getNotes().add(note.getUser() + ": " + note.getNote());
+                            }
 
-                    curUser.getList(listId).getTask(taskId).setVerified(verified);
-                }
-                if (curUser.getList(listId).getTask(taskId).getNonViewers().contains(curUser.getUserId())) {    // Remove Task if Hidden for user
-                    curUser.getList(listId).removeListTask(curUser.getList(listId).getTask(taskId));
+                            for (DataSnapshot noteSnapshot : dataSnapshot.child("photos/").getChildren()) {
+                                String photo = noteSnapshot.getValue(String.class);
+                                curUser.getList(listId).getTask(taskId).addPhoto(photo);
+                            }
+
+                            Log.d(TAG, "Updated Task Name: " + title);                  // LOGS THE UPDATED DATA OF THE TASK
+                            Log.d(TAG, "Updated Due Date: " + dueDate);
+                            Log.d(TAG, "Updated Reminder Date: " + reminderDate);
+
+                            taskNameAlreadyUpdated = (curUser.getList(listId).getTask(taskId).getTaskName()).equals(title);
+                            if (curUser.getList(listId).getTask(taskId).getDueDate() == null)
+                                dueDateAlreadyUpdated = false;
+                            else
+                                dueDateAlreadyUpdated = (format2.format(curUser.getList(listId).getTask(taskId).getDueDate())).equals(dueDate);
+                            if (curUser.getList(listId).getTask(taskId).getReminderDate() == null)
+                                reminderDateAlreadyUpdated = false;
+                            else
+                                reminderDateAlreadyUpdated = (format2.format(curUser.getList(listId).getTask(taskId).getReminderDate())).equals(reminderDate);
+
+                            Log.d(TAG, "Task name already updated: " + taskNameAlreadyUpdated); // LOGS IF THE TASK DATA ARE ALREADY UPDATED IN TASKS-ARRAY
+                            Log.d(TAG, "Due Date already updated: " + dueDateAlreadyUpdated);
+                            Log.d(TAG, "Reminder Date already updated: " + reminderDateAlreadyUpdated);
+
+                            if (!taskNameAlreadyUpdated) {                                      // TASK DATA ARE NOT YET UPDATED IN USER TASKS-ARRAY
+
+                                curUser.getList(listId).getTask(taskId).setTaskName(title);     // ADDS DATABASE TASK DATA TO USER TASKS-ARRAY
+                            }
+                            if (!dueDateAlreadyUpdated && dueDate != null) {
+
+                                try {
+                                    curUser.getList(listId).getTask(taskId).setDueDate(format2.parse(dueDate));
+                                } catch (ParseException e) {
+                                }
+                            }
+                            if (!reminderDateAlreadyUpdated && reminderDate != null) {
+
+                                try {
+                                    curUser.getList(listId).getTask(taskId).setReminderDate(format2.parse(reminderDate));
+                                } catch (ParseException e) {
+                                }
+                            }
+                            Log.d(TAG, "Updated Completion: " + completed);
+                            Log.d(TAG, "Updated Verification: " + verified);
+
+                            completionAlreadyUpdated = (curUser.getList(listId).getTask(taskId).isCompleted()) == (completed);
+                            verificationAlreadyUpdated = (curUser.getList(listId).getTask(taskId).isVerified()) == (verified);
+
+                            Log.d(TAG, "Completion already updated: " + completionAlreadyUpdated);
+                            Log.d(TAG, "Verification already updated: " + verificationAlreadyUpdated);
+
+                            if (!completionAlreadyUpdated) {
+
+                                curUser.getList(listId).getTask(taskId).setCompleted(completed);
+                            }
+                            if (!verificationAlreadyUpdated) {
+
+                                curUser.getList(listId).getTask(taskId).setVerified(verified);
+                            }
+                        }
+                        else {
+                            curUser.getList(listId).removeListTask(curUser.getList(listId).getTask(taskId));    // TASK REMOVED IF HIDDEN
+                        }
+                    }
+                    else {                                                                  // TASK NOT IN USER-LIST
+                        if (!users.contains(curUser.getUserId())) {                         // IF TASK NOT HIDDEN
+                            Task userTask = new Task(listId);
+                            userTask.setTaskId(taskId);
+                            userTask.setListId(listId);
+                            userTask.setTaskName(title);
+                            try {
+                                userTask.setCreatedDate(format.parse(createdDate));
+                            } catch (ParseException e) {
+                            }
+                            if (dueDate != null) {
+                                try {
+                                    userTask.setDueDate(format2.parse(dueDate));
+                                } catch (ParseException e) {
+                                }
+                            }
+                            if (reminderDate != null) {
+                                try {
+                                    userTask.setReminderDate(format2.parse(reminderDate));
+                                } catch (ParseException e) {
+                                }
+                            }
+                            for (DataSnapshot userSnapshot : dataSnapshot.child("users_assigned_to/").getChildren()) {
+                                userTask.getAssignees().add(userSnapshot.getKey());   // CHANGES ASSIGNED USERS IN TASK
+                            }
+                            for (String u: users) {
+                                userTask.getNonViewers().add(u);                  // CHANGES HIDDEN USERS IN TASK
+                            }
+                            for (DataSnapshot noteSnapshot : dataSnapshot.child("notes/").getChildren()) {          // CHANGES NOTES IN TASK
+                                DataBaseNotes note = noteSnapshot.getValue(DataBaseNotes.class);
+                                userTask.getNotes().add(note.getUser() + ": " + note.getNote());
+                            }
+                            for (DataSnapshot noteSnapshot : dataSnapshot.child("photos/").getChildren()) {
+                                String photo = noteSnapshot.getValue(String.class);
+                                userTask.addPhoto(photo);
+                            }
+                            userTask.setCompleted(completed);
+                            userTask.setVerified(verified);
+
+                            curUser.getList(listId).addListTask(userTask);
+                        }
+                    }
                 }
             }
 
@@ -415,13 +507,18 @@ public class FireBaseDataRetrieve extends Service {
 
                 Log.d(TAG, "Deleted Task Name: " + title);                  // LOGS THE NAME OF THE DELETED TASK
 
-                taskNotAlreadyDeleted = curUser.getList(listId) != null;
+                existsUserListForTask = curUser.getList(listId) != null;
 
-                Log.d(TAG, "Task is already deleted: " + !taskNotAlreadyDeleted);  // LOGS IF THE TASK IS ALREADY DELETED FROM LISTS-ARRAY
+                if (existsUserListForTask) {
 
-                if (taskNotAlreadyDeleted) {                                // LIST NAME IS NOT YET UPDATED IN USER LISTS-ARRAY
+                    taskNotAlreadyDeleted = curUser.getList(listId).getTask(taskId) != null;
 
-                    curUser.getList(listId).removeListTask(curUser.getList(listId).getTask(taskId)); // DELETES DATABASE TASK FROM USER LISTS-ARRAY
+                    Log.d(TAG, "Task is already deleted: " + !taskNotAlreadyDeleted);  // LOGS IF THE TASK IS ALREADY DELETED FROM LISTS-ARRAY
+
+                    if (taskNotAlreadyDeleted) {                                // LIST NAME IS NOT YET UPDATED IN USER LISTS-ARRAY
+
+                        curUser.getList(listId).removeListTask(curUser.getList(listId).getTask(taskId)); // DELETES DATABASE TASK FROM USER LISTS-ARRAY
+                    }
                 }
             }
 
