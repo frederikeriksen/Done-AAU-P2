@@ -16,6 +16,9 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -29,6 +32,7 @@ import com.bignerdranch.android.done.PopUps.AssigningTaskPickerFragment;
 import com.bignerdranch.android.done.PopUps.DueDatePickerFragment;
 import com.bignerdranch.android.done.PopUps.EditTaskTitlePickerFragment;
 import com.bignerdranch.android.done.PopUps.HidingTaskPickerFragment;
+import com.bignerdranch.android.done.PopUps.NewTaskTitlePickerFragment;
 import com.bignerdranch.android.done.PopUps.NotesPickerFragment;
 import com.bignerdranch.android.done.PopUps.ReminderDatePickerFragment;
 import com.bignerdranch.android.done.R;
@@ -117,6 +121,23 @@ public class TaskFragment extends Fragment{
     public void onResume() {
         super.onResume();
         updateUI();
+    }
+
+    @Override
+    public void onCreateOptionsMenu (Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.fragment_task, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_item_sync_task: {
+                updateUI();
+                return true;
+            }
+            default: return super.onOptionsItemSelected(item);
+        }
     }
 
     private RecyclerView mTaskRecyclerView;         // RecyclerView creates only enough views to fill the screen and scrolls them
@@ -268,10 +289,16 @@ public class TaskFragment extends Fragment{
 
                 String taskTitle = (String) data.getSerializableExtra(EditTaskTitlePickerFragment.EXTRA_TASK_TITLE);
 
+                if (taskTitle.length() > 40) taskTitle = taskTitle.substring(0, 40);            // cutting task name short
+
                 mDataBaseTaskRef.child(mTask.getTaskId()).child("taskName").setValue(taskTitle); // updating DB task name
-                                                                    // updating Array Task Name is already done
+
+                mTask.setTaskName(taskTitle);                       // updating array Task name
+
                 updateUI();                                         // and updating UI
-                ((TaskActivity)getActivity()).getSupportActionBar().setTitle("Task: "+ mTask.getTaskName());
+
+                ((TaskActivity)getActivity()).getSupportActionBar().setTitle("Task: "+ mTask.getTaskName()); //updating app bar
+
                 break;
             }
         }

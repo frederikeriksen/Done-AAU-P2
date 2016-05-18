@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -19,8 +20,10 @@ import com.bignerdranch.android.done.AppData.User;
  */
 public class EditListTitlePickerFragment extends android.support.v4.app.DialogFragment {
 
+    private static final String TAG = "DoneActivity";
     private static final String ARG_LIST_ID = "listId";
     public static final String EXTRA_ID = "com.bignerdranch.android.done.listId";
+    public static final String EXTRA_TITLE = "com.bignerdranch.android.done.listTitle";
     private EditText mTitleField;
     private String mListTitle;
 
@@ -46,14 +49,13 @@ public class EditListTitlePickerFragment extends android.support.v4.app.DialogFr
 
         mTitleField.addTextChangedListener(new TextWatcher() {
             public void onTextChanged(CharSequence c, int start, int before, int count) { // CharSequence is user input
-                mListTitle = c.toString();
-                User.get().getList(listId).setListName(mListTitle);
+                mListTitle = (c.toString());
             }
             public void beforeTextChanged(CharSequence c, int start, int count, int after) {
-                // This space intentionally left blank
+                // empty
             }
             public void afterTextChanged(Editable c) {
-                // This one too
+                // empty
             }
         });
 
@@ -63,18 +65,19 @@ public class EditListTitlePickerFragment extends android.support.v4.app.DialogFr
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {    // here you pass the object that implements
                     @Override                                                                      // the listener interface
                     public void onClick(DialogInterface dialog, int which) {
-                        sendResult(Activity.RESULT_OK,listId);
+                        sendResult(Activity.RESULT_OK,listId, mListTitle);
                     }
                 })
                 .create();
     }
 
-    private void sendResult(int resultCode, String id) {
+    private void sendResult(int resultCode, String id, String title) {
         if (getTargetFragment() == null) {
             return;
         }
         Intent intent = new Intent();
         intent.putExtra(EXTRA_ID, id);
+        intent.putExtra(EXTRA_TITLE, title);
         getTargetFragment()
                 .onActivityResult(getTargetRequestCode(), resultCode, intent);
     }

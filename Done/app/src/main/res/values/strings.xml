@@ -35,6 +35,7 @@
     <string name="add_note_picker_title">Task Note:</string>
     <string name="new_task">New Task</string>
     <string name="new_list">New List</string>
+    <string name="sync">Sync with Exernal Database</string>
     <string name="delete_user">Delete User</string>
     <string name="show_subtitle">Show Subtitle</string> 
     <string name="hide_subtitle">Hide Subtitle</string>

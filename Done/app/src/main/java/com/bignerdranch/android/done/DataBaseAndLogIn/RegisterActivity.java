@@ -1,21 +1,30 @@
 package com.bignerdranch.android.done.DataBaseAndLogIn;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+import com.bignerdranch.android.done.AppData.RegisteredUsers;
 import com.bignerdranch.android.done.R;
 import com.bignerdranch.android.done.AppData.User;
 import com.bignerdranch.android.done.ActivitiesAndFragments.UserActivity;
+import com.firebase.client.ChildEventListener;
+import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
-
+import com.firebase.client.FirebaseError;
 import java.io.ByteArrayOutputStream;
 import java.util.UUID;
 
@@ -30,8 +39,8 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText mEditTextPassword;
     private EditText mEditTextRepeatPassword;
     private Button mButtonRegister;
-    private String fireBaseUrl;
     private DataBaseUsers userNew;
+    private static final String TAG = "DoneActivity";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -49,8 +58,30 @@ public class RegisterActivity extends AppCompatActivity {
         mEditTextEmail = (EditText) findViewById(R.id.editTextEmail);
         mEditTextPassword = (EditText) findViewById(R.id.editTextPassword);
         mEditTextRepeatPassword = (EditText) findViewById(R.id.editTextRepeatPassword);
-        fireBaseUrl = "https://doneaau.firebaseio.com/users/";
-        mRef = new Firebase(fireBaseUrl);
+
+        RegisteredUsers.get().getUsers().clear();
+        mRef = new Firebase("https://doneaau.firebaseio.com/users/");
+        mRef.addChildEventListener(new ChildEventListener() {
+            // Retrieve all users as they are in the database
+            @Override
+            public void onChildAdded(DataSnapshot snapshot, String previousChildKey) {
+                DataBaseUsers user = snapshot.getValue(DataBaseUsers.class);
+
+                RegisteredUsers.get().getUsers().add(user);                 // add registered user in Reg.Users list
+            }
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+            }
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+            }
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+            }
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+            }
+        });
 
         mButtonRegister.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -67,6 +98,9 @@ public class RegisterActivity extends AppCompatActivity {
                 else if (!password.equals(repeatPass)) {
                     Toast.makeText(getApplicationContext(), "The passwords must match!", Toast.LENGTH_LONG).show();
                 }
+                else if(!isConnectedToInternet()) {
+                    Toast.makeText(getApplicationContext(), "Please connect to a network!", Toast.LENGTH_LONG).show();
+                }
                 else if(!isValidEmail(email)){
                     Toast.makeText(getApplicationContext(), "The email is not valid!", Toast.LENGTH_LONG).show();
                 }
@@ -77,25 +111,34 @@ public class RegisterActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "This password is too long", Toast.LENGTH_LONG).show();
                 }
                 else {
+                    boolean emailExists = false;
+                    for (DataBaseUsers currUser : RegisteredUsers.get().getUsers()) {
+                        if (email.equals(currUser.getEmail())) {
+                            Toast.makeText(getApplicationContext(), "This email already exists", Toast.LENGTH_LONG).show();
+                            emailExists = true;
+                            break;
+                        }
+                    }
+                    if (!emailExists) {
+                        userNew = new DataBaseUsers();                      // Saving User data to database
+                        userNew.setUserId(UUID.randomUUID().toString());
+                        userNew.setEmail(email);
+                        userNew.setUserName(name);
+                        userNew.setPassword(password);
+                        userNew.setPhoto(imageIntoString());
+                        mRef.child(userNew.getUserId()).setValue(userNew);
 
-                    userNew = new DataBaseUsers();                      // Saving User data to database
-                    userNew.setUserId(UUID.randomUUID().toString());
-                    userNew.setEmail(email);
-                    userNew.setUserName(name);
-                    userNew.setPassword(password);
-                    userNew.setPhoto(imageIntoString());
-                    mRef.child(userNew.getUserId()).setValue(userNew);
+                        User.get().getUserLists().clear();                  // Existing User data emptied
+                        User.get().setUserId(userNew.getUserId());          // User initialized from database user-data
+                        User.get().setUserName(name);
+                        User.get().setEmail(email);
+                        User.get().setPassword(password);
+                        User.get().setPhoto(imageIntoString());
 
-                    User.get().getUserLists().clear();                  // Existing User data emptied
-                    User.get().setUserId(userNew.getUserId());          // User initialized from database user-data
-                    User.get().setUserName(name);
-                    User.get().setEmail(email);
-                    User.get().setPassword(password);
-                    User.get().setPhoto(imageIntoString());
-
-                    Toast.makeText(getApplicationContext(), "User registered", Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(getApplicationContext(), UserActivity.class);
-                    startActivity(intent);
+                        Toast.makeText(getApplicationContext(), "User registered", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(getApplicationContext(), UserActivity.class);
+                        startActivity(intent);
+                    }
                 }
             }
         });
@@ -114,4 +157,13 @@ public class RegisterActivity extends AppCompatActivity {
     public final static boolean isValidEmail(CharSequence target) {
         return !TextUtils.isEmpty(target) && android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches();
     }
+
+    public boolean isConnectedToInternet(){
+        ConnectivityManager cm = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        Log.d(TAG, "Active Network: " + activeNetwork + activeNetwork.toString());
+        boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+        return isConnected;
+    }
 }
+

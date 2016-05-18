@@ -54,7 +54,7 @@ public class LoginActivity extends AppCompatActivity {
         mEditTextEmail = (EditText) findViewById(R.id.editTextLoginEmail);
         mEditTextPassword = (EditText) findViewById(R.id.editTextLoginPassword);
         mButtonLogin = (Button) findViewById(R.id.buttonLogin);
-
+        RegisteredUsers.get().getUsers().clear();
         mRef = new Firebase("https://doneaau.firebaseio.com/users/");
         mRef.addChildEventListener(new ChildEventListener() {
             // Retrieve all users as they are in the database
@@ -151,6 +151,5 @@ public class LoginActivity extends AppCompatActivity {
             }
         }
         return false;
-
     }
 }

@@ -13,6 +13,13 @@ import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -210,22 +217,25 @@ public class FireBaseDataRetrieve extends Service {
 
                 if (User.get().getList(listId) != null) {                   // LIST ALREADY IN USER-LISTS (OWN OR SHARED)
 
-                    Log.d(TAG, "Updated List Name: " + listName);                  // LOGS THE UPDATED NAME OF THE LIST
+                    if (curUser.getUserId().equals(creatorId) || users.contains(curUser.getUserId())) {
 
-                    listNameAlreadyUpdated = (curUser.getList(listId).getListName()).equals(listName);
+                        Log.d(TAG, "Updated List Name: " + listName);                  // LOGS THE UPDATED NAME OF THE LIST
 
-                    Log.d(TAG, "List name already updated: " + listNameAlreadyUpdated);  // LOGS IF THE LIST NAME IS ALREADY UPDATED IN LISTS-ARRAY
+                        listNameAlreadyUpdated = (curUser.getList(listId).getListName()).equals(listName);
 
-                    if (!listNameAlreadyUpdated) {                              // LIST NAME IS NOT YET UPDATED IN USER LISTS-ARRAY
+                        Log.d(TAG, "List name already updated: " + listNameAlreadyUpdated);  // LOGS IF THE LIST NAME IS ALREADY UPDATED IN LISTS-ARRAY
 
-                        curUser.getList(listId).setListName(listName);             // CHANGES DATABASE LIST NAME IN USER LISTS-ARRAY LIST NAME
+                        if (!listNameAlreadyUpdated) {                              // LIST NAME IS NOT YET UPDATED IN USER LISTS-ARRAY
+
+                            curUser.getList(listId).setListName(listName);             // CHANGES DATABASE LIST NAME IN USER LISTS-ARRAY LIST NAME
+                        }
+                        User.get().getList(listId).getListUsers().clear();
+                        for (String u : users) {
+                            User.get().getList(listId).getListUsers().add(u);       // CHANGES SHARED USERS IN LIST
+                        }
                     }
-                    User.get().getList(listId).getListUsers().clear();
-                    for (String u: users) {
-                        User.get().getList(listId).getListUsers().add(u);       // CHANGES SHARED USERS IN LIST
-                    }
-                    if (!users.contains(curUser.getUserId())) {
-                        User.get().removeUserList(User.get().getList(listId));  // REMOVES LIST IF UN-SHARED
+                    else {
+                        User.get().removeUserList(User.get().getList(listId));  // REMOVES LIST IF UN-SHARED AND NOT OWNED
                     }
                 }
                 else {                                                      // LIST NOT IN USER-LISTS
@@ -329,7 +339,7 @@ public class FireBaseDataRetrieve extends Service {
                                 Log.d(TAG, "Task Assigned To: " + RegisteredUsers.get().getUser(user.getKey()).getUserName());
                             }
                             for (String u: users) {
-                                userTask.getNonViewers().add(u);                 
+                                userTask.getNonViewers().add(u);
                                 Log.d(TAG, "Task Hidden From: " + RegisteredUsers.get().getUser(u));
                             }
                             for (DataSnapshot noteSnapshot : snapshot.child("notes/").getChildren()) {

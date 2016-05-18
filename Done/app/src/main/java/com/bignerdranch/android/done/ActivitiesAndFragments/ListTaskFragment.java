@@ -94,12 +94,17 @@ public class ListTaskFragment extends Fragment{
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.menu_item_new_task:
+            case R.id.menu_item_new_task: {
                 NewTaskTitlePickerFragment dialog = new NewTaskTitlePickerFragment(); //shows dialog for new task
                 FragmentManager manager = getFragmentManager();
                 dialog.setTargetFragment(ListTaskFragment.this, 11);
                 dialog.show(manager, DIALOG_TASK_TITLE);
                 return true;
+            }
+            case R.id.menu_item_sync_list: {
+                updateUI();
+                return true;
+            }
             default: return super.onOptionsItemSelected(item);
         }
     }

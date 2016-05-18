@@ -7,4 +7,11 @@
         android:icon="@drawable/ic_menu_add"
         android:title="@string/new_list"
         app:showAsAction="ifRoom|withText"/>
+
+    <item
+        android:id="@+id/menu_item_sync_user"
+        android:icon="@drawable/ic_sync"
+        android:title="@string/sync"
+        app:showAsAction="ifRoom|withText"/>
+
 </menu>

@@ -85,12 +85,17 @@ public class UserListFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.menu_item_new_list:
+            case R.id.menu_item_new_list: {
                 NewListTitlePickerFragment dialog = new NewListTitlePickerFragment(); //shows dialog for new list
                 FragmentManager manager = getFragmentManager();
                 dialog.setTargetFragment(UserListFragment.this, 10);
                 dialog.show(manager, DIALOG_LIST_TITLE);
                 return true;
+            }
+            case R.id.menu_item_sync_user: {
+                updateUI();
+                return true;
+            }
             default: return super.onOptionsItemSelected(item);
         }
     }
@@ -125,10 +130,16 @@ public class UserListFragment extends Fragment {
             case 6: {       // CHANGING LIST NAME
 
                 String listId = (String) data.getSerializableExtra(EditListTitlePickerFragment.EXTRA_ID);
+                String title = (String) data.getSerializableExtra(EditListTitlePickerFragment.EXTRA_TITLE);
 
-                mDataBaseListRef.child(listId).child("listName").setValue(User.get().getList(listId).getListName()); // updating DB list name
-                                                                    // updating Array List Name is already done
+                if (title.length() > 35) title = title.substring(0, 35);            // cutting list name short
+
+                mDataBaseListRef.child(listId).child("listName").setValue(title);   // updating DB list name
+
+                User.get().getList(listId).setListName(title);;     // updating array List name already done
+
                 updateUI();                                         // and updating UI
+
                 break;
             }
             case 7: {       // SHARING LIST
@@ -188,7 +199,6 @@ public class UserListFragment extends Fragment {
         private Button mShareButton;
         private Button mDeleteButton;
         private Button mTaskButton;
-        private List mList;
 
         public ListHolder(View itemView) {     // constructor - stashes the views
             super(itemView);
@@ -202,7 +212,7 @@ public class UserListFragment extends Fragment {
         }
 
         public void bindList(List list) {                   // list data entered in fragment viewholder
-            mList = list;
+            final List mList = list;
             mTitleTextView.setText(mList.getListName());
             mCreatorTextView.setText(RegisteredUsers.get().getUser(mList.getCreatorId()).getUserName());
             String shares = "";
