@@ -122,8 +122,8 @@ public class UserListFragment extends Fragment {
                 mNewList.setListId(listDBNew.getListId());
                 mNewList.setListName(title);
                 mNewList.setCreatorId(User.get().getUserId());
-                User.get().addUserList(mNewList);                   // updating AppBar, below
-                ((UserActivity)getActivity()).getSupportActionBar().setTitle(User.get().getUserName() + " - My " + User.get().getUserLists().size() + " To-Do Lists");
+                User.get().addUserList(mNewList);
+
                 updateUI();                                         // and updating UI
                 break;
             }
@@ -161,7 +161,7 @@ public class UserListFragment extends Fragment {
                         break;
                     }
                 }
-                if (noUser) Toast.makeText(getContext(), "No Registered user with that Email address exists in the Database", Toast.LENGTH_SHORT).show();
+                if (noUser) Toast.makeText(getContext(), "No Registered user with that Email address exists", Toast.LENGTH_SHORT).show();
                 break;
             }
             case 8: {       // DELETING LIST AND ITS TASKS
@@ -321,7 +321,7 @@ public class UserListFragment extends Fragment {
         @Override
         public void onBindViewHolder(ListHolder holder, int position) { // binds viewholder's view to a model object
             List list = mLists.get(position);
-            ((UserActivity)getActivity()).getSupportActionBar().setTitle(User.get().getUserName() + " - My " + User.get().getUserLists().size() + " To-Do Lists");
+            ((UserActivity)getActivity()).getSupportActionBar().setTitle(User.get().getUserName() + ": My " + User.get().getUserLists().size() + " Lists");
             holder.bindList(list);
         }
 

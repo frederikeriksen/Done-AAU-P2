@@ -29,14 +29,14 @@ public class UserActivity extends ActivityParent {
         super.onCreate(savedInstanceState);
         Intent databaseService = new Intent(this, FireBaseDataRetrieve.class); //HERE WE START THE SERVICE WHICH PULLS DATA!!!
         startService(databaseService);
-        getSupportActionBar().setTitle(User.get().getUserName() + ": My " + User.get().getUserLists().size() + " To-Do Lists");
+        getSupportActionBar().setTitle(User.get().getUserName() + ": My " + User.get().getUserLists().size() + " Lists");
 
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        getSupportActionBar().setTitle(User.get().getUserName() + ": My " + User.get().getUserLists().size() + " To-Do Lists");
+        getSupportActionBar().setTitle(User.get().getUserName() + ": My " + User.get().getUserLists().size() + " Lists");
     }
 }
 

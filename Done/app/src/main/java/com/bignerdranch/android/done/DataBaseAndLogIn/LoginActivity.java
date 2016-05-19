@@ -125,6 +125,7 @@ public class LoginActivity extends AppCompatActivity {
     public final static boolean isValidEmail(CharSequence target) {
         return !TextUtils.isEmpty(target) && android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches();
     }
+
     public boolean isConnectedToInternet(){
         ConnectivityManager connectivityManager = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {

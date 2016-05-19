@@ -111,6 +111,7 @@ public class TaskFragment extends Fragment{
     @Override
     public void onCreate(Bundle savedInstanceState) {       // it is Public because it can be called by various activities hosting it
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
         String taskId = (String) getArguments().getSerializable(ARG_TASK_ID);   // accessing Fragment arguments for task id
         String listId = (String) getArguments().getSerializable(ARG_LIST_ID);   //  RETRIEVES List ID from Intent
         mTask = User.get().getList(listId).getTask(taskId);    // using a get method to get Task from ids
@@ -212,6 +213,8 @@ public class TaskFragment extends Fragment{
             case 2: {      // ADDING NOTES
                 String note = (String) data.getSerializableExtra(NotesPickerFragment.EXTRA_TITLE);
 
+                if (note == null) break;                            // does not accept empty notes
+
                 mDataBaseNoteRef = new Firebase("https://doneaau.firebaseio.com/tasks/"+ mTask.getTaskId() +"/notes/");
                 Map<String, Object> dbnote = new HashMap<String, Object>();
                 dbnote.put("user", User.get().getUserName());
@@ -304,7 +307,10 @@ public class TaskFragment extends Fragment{
         }
     }
 
-    private void updateTaskTitle() {mTaskTitleTextView.setText(mTask.getTaskName());}
+    private void updateTaskTitle() {
+        mTaskTitleTextView.setText(mTask.getTaskName());
+        ((TaskActivity)getActivity()).getSupportActionBar().setTitle("Task: " + mTask.getTaskName());
+    }
 
     private void updateDueDate() {
         if (mTask.getDueDate() == null) mDueDateTextView.setText("Not Set");
@@ -376,6 +382,7 @@ public class TaskFragment extends Fragment{
                 public void onClick(View v) {
                     possAssignees.clear();
                     for (String lu: mList.getListUsers()) possAssignees.add(lu);
+                    possAssignees.add(mList.getCreatorId());
                     for (String nv: mTask.getNonViewers()) possAssignees.remove(nv);
                     if (possAssignees != null) {
                         FragmentManager manager = getFragmentManager();
@@ -384,7 +391,7 @@ public class TaskFragment extends Fragment{
                         dialog.show(manager, DIALOG_ASSIGN_TASK);
                     }
                     else {
-                        Toast.makeText(getContext(), "There is no visible and shared user to whom this task can be assigned", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "There is no user to whom this task can be assigned", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
@@ -417,6 +424,8 @@ public class TaskFragment extends Fragment{
                 public void onClick(View v) {
                     possNonViewers.clear();
                     for (String lu: mList.getListUsers()) possNonViewers.add(lu);
+                    possNonViewers.add(mList.getCreatorId());
+                    possNonViewers.remove(User.get().getUserId());
                     for (String as: mTask.getAssignees()) possNonViewers.remove(as);
                     if (possNonViewers != null) {
                         FragmentManager manager = getFragmentManager();
@@ -425,7 +434,7 @@ public class TaskFragment extends Fragment{
                         dialog.show(manager, DIALOG_HIDE_TASK);
                     }
                     else {
-                        Toast.makeText(getContext(), "There is no unassigned and shared user from which this task can be hidden", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "There is user from which this task can be hidden", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
@@ -610,7 +619,7 @@ public class TaskFragment extends Fragment{
             if (mTask.isCompleted() && mTask.getAssignees() != null &&
                     !mTask.getAssignees().contains(User.get().getUserId())) mVerifiedCheckBox.setEnabled(true);
             else mVerifiedCheckBox.setEnabled(false);
-            mVerifiedCheckBox.setChecked(mTask.isCompleted());
+            mVerifiedCheckBox.setChecked(mTask.isVerified());
             mVerifiedCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     mDataBaseTaskRef.child(mTask.getTaskId()).child("verified").setValue(isChecked);    // updates database

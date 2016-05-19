@@ -194,6 +194,7 @@ public class ListTaskFragment extends Fragment{
             if (mTask.getDueDate() == null) mDueDateTextView.setText("Not Set");
             else mDueDateTextView.setText(format2.format(mTask.getDueDate()));
             mCompletedCheckBox.setChecked(mTask.isCompleted());
+            mCompletedCheckBox.setEnabled(false);
             mEditButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

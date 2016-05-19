@@ -395,11 +395,13 @@ public class FireBaseDataRetrieve extends Service {
                                 User.get().getList(listId).getTask(taskId).getAssignees().add(userSnapshot.getKey());   // CHANGES ASSIGNED USERS IN TASK
                             }
 
+                            curUser.getList(listId).getTask(taskId).getNotes().clear();
                             for (DataSnapshot noteSnapshot : dataSnapshot.child("notes/").getChildren()) { // CHANGES NOTES IN TASK
                                 DataBaseNotes note = noteSnapshot.getValue(DataBaseNotes.class);
-                                curUser.getList(listId).getTask(taskId).getNotes().add(note.getUser() + ": " + note.getNote());
+                                curUser.getList(listId).getTask(taskId).addNote(note.getUser() + ": " + note.getNote());
                             }
 
+                            curUser.getList(listId).getTask(taskId).getPhotos().clear();
                             for (DataSnapshot noteSnapshot : dataSnapshot.child("photos/").getChildren()) {
                                 String photo = noteSnapshot.getValue(String.class);
                                 curUser.getList(listId).getTask(taskId).addPhoto(photo);
